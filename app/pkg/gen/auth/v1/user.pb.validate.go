@@ -599,8 +599,8 @@ func (m *UpdateRequest) validate(all bool) error {
 		}
 	}
 
-	if m.Rol != nil {
-		// no validation rules for Rol
+	if m.Role != nil {
+		// no validation rules for Role
 	}
 
 	if len(errors) > 0 {

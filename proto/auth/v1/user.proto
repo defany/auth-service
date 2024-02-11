@@ -51,7 +51,7 @@ message UpdateRequest {
   int64 id = 1;
   google.protobuf.StringValue name = 2;
   google.protobuf.StringValue email = 3;
-  optional UserRole rol = 4; /* optional, т.к. роль тоже не всегда нужно обновлять */
+  optional UserRole role = 4; /* optional, т.к. роль тоже не всегда нужно обновлять */
 }
 
 message UpdateResponse {}
