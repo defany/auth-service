@@ -1,0 +1,63 @@
+syntax = 'proto3';
+
+package auth.v1;
+
+option go_package = 'github.com/defany/auth-service/proto/pkg/auth_v1;auth_v1';
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+service User {
+  rpc Create(CreateRequest) returns (CreateResponse);
+  rpc Get(GetRequest) returns (GetResponse);
+  rpc Update(UpdateRequest) returns (UpdateResponse);
+  rpc Delete(DeleteRequest) returns (DeleteResponse);
+}
+
+enum UserRole {
+  UNKNOWN_USER_ROLE = 0;
+  USER = 1;
+  ADMIN = 2;
+}
+
+message CreateRequest {
+  string name = 1;
+  string email = 2;
+  string password = 3;
+  string password_confirm = 4;
+  UserRole role = 5;
+}
+
+message CreateResponse {
+  int64 id = 1;
+}
+
+message GetRequest {
+  int64 id = 1;
+}
+
+message GetResponse {
+  int64 id = 1;
+  string name = 2;
+  string email = 3;
+  string password = 4;
+  string password_confirm = 5;
+  UserRole role = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+}
+
+message UpdateRequest {
+  int64 id = 1;
+  google.protobuf.StringValue name = 2;
+  google.protobuf.StringValue email = 3;
+  optional UserRole rol = 4; /* optional, т.к. роль тоже не всегда нужно обновлять */
+}
+
+message UpdateResponse {}
+
+message DeleteRequest {
+  int64 id = 1;
+}
+
+message DeleteResponse {}
