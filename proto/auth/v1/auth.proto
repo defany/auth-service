@@ -6,21 +6,26 @@ option go_package = 'github.com/defany/auth-service/proto/pkg/auth_v1;auth_v1';
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
 
-service User {
-  rpc Create(CreateRequest) returns (CreateResponse);
-  rpc Get(GetRequest) returns (GetResponse);
-  rpc Update(UpdateRequest) returns (UpdateResponse);
-  rpc Delete(DeleteRequest) returns (DeleteResponse);
+service Auth {
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+  /* https://buf.build/docs/lint/rules#rpc_request_response */
+  // buf:lint:ignore RPC_SAME_RESPONSE_TYPE
+  rpc UpdateUser(UpdateUserRequest) returns (google.protobuf.Empty);
+  /* https://buf.build/docs/lint/rules#rpc_request_response */
+  // buf:lint:ignore RPC_SAME_RESPONSE_TYPE
+  rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.Empty);
 }
 
 enum UserRole {
-  UNKNOWN_USER_ROLE = 0;
+  UNKNOWN = 0;
   USER = 1;
   ADMIN = 2;
 }
 
-message CreateRequest {
+message CreateUserRequest {
   string name = 1;
   string email = 2;
   string password = 3;
@@ -28,15 +33,15 @@ message CreateRequest {
   UserRole role = 5;
 }
 
-message CreateResponse {
+message CreateUserResponse {
   int64 id = 1;
 }
 
-message GetRequest {
+message GetUserRequest {
   int64 id = 1;
 }
 
-message GetResponse {
+message GetUserResponse {
   int64 id = 1;
   string name = 2;
   string email = 3;
@@ -47,17 +52,13 @@ message GetResponse {
   google.protobuf.Timestamp updated_at = 8;
 }
 
-message UpdateRequest {
+message UpdateUserRequest {
   int64 id = 1;
   google.protobuf.StringValue name = 2;
   google.protobuf.StringValue email = 3;
   optional UserRole role = 4; /* optional, т.к. роль тоже не всегда нужно обновлять */
 }
 
-message UpdateResponse {}
-
-message DeleteRequest {
+message DeleteUserRequest {
   int64 id = 1;
 }
-
-message DeleteResponse {}

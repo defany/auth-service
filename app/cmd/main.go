@@ -3,23 +3,25 @@ package main
 import (
 	context "context"
 	"fmt"
+	"log/slog"
+	"net"
+	"os"
+
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/defany/auth-service/app/pkg/gen/auth/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"log/slog"
-	"net"
-	"os"
 )
 
 const port = 50001
 
 type server struct {
-	authv1.UnimplementedUserServer
+	authv1.UnimplementedAuthServer
 }
 
-func (s *server) Create(ctx context.Context, request *authv1.CreateRequest) (*authv1.CreateResponse, error) {
+func (s *server) Create(ctx context.Context, request *authv1.CreateUserRequest) (*authv1.CreateUserResponse, error) {
 	log := slog.With(
 		slog.String("name", request.GetName()),
 		slog.String("email", request.GetEmail()),
@@ -30,19 +32,19 @@ func (s *server) Create(ctx context.Context, request *authv1.CreateRequest) (*au
 
 	log.Info("create user request")
 
-	return &authv1.CreateResponse{
+	return &authv1.CreateUserResponse{
 		Id: gofakeit.Int64(),
 	}, nil
 }
 
-func (s *server) Get(ctx context.Context, request *authv1.GetRequest) (*authv1.GetResponse, error) {
+func (s *server) Get(ctx context.Context, request *authv1.GetUserRequest) (*authv1.GetUserResponse, error) {
 	log := slog.With(
 		slog.Int64("id", request.GetId()),
 	)
 
 	log.Info("get user request")
 
-	resData := authv1.GetResponse{
+	resData := authv1.GetUserResponse{
 		Id:              request.GetId(),
 		Name:            gofakeit.Name(),
 		Email:           gofakeit.Email(),
@@ -58,7 +60,7 @@ func (s *server) Get(ctx context.Context, request *authv1.GetRequest) (*authv1.G
 	return &resData, nil
 }
 
-func (s *server) Update(ctx context.Context, request *authv1.UpdateRequest) (*authv1.UpdateResponse, error) {
+func (s *server) Update(ctx context.Context, request *authv1.UpdateUserRequest) (*emptypb.Empty, error) {
 	log := slog.With(
 		slog.Int64("id", request.GetId()),
 		slog.String("email", request.GetEmail().GetValue()),
@@ -68,24 +70,23 @@ func (s *server) Update(ctx context.Context, request *authv1.UpdateRequest) (*au
 
 	log.Info("update user request")
 
-	return &authv1.UpdateResponse{}, nil
+	return &emptypb.Empty{}, nil
 }
 
-func (s *server) Delete(ctx context.Context, request *authv1.DeleteRequest) (*authv1.DeleteResponse, error) {
+func (s *server) Delete(ctx context.Context, request *authv1.DeleteUserRequest) (*emptypb.Empty, error) {
 	log := slog.With(
 		slog.Int64("id", request.GetId()),
 	)
 
 	log.Info("delete user request")
 
-	return &authv1.DeleteResponse{}, nil
+	return &emptypb.Empty{}, nil
 }
 
 func main() {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		slog.Error("failed to listen: %v", err)
-
 		os.Exit(1)
 	}
 
@@ -93,13 +94,12 @@ func main() {
 
 	reflection.Register(s)
 
-	authv1.RegisterUserServer(s, &server{})
+	authv1.RegisterAuthServer(s, &server{})
 
 	slog.Info("listening", slog.String("port", lis.Addr().String()))
 
 	if err := s.Serve(lis); err != nil {
 		slog.Error("failed to serve: %v", err)
-
 		os.Exit(1)
 	}
 }
