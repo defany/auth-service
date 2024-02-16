@@ -1,27 +1,60 @@
 package main
 
 import (
-	context "context"
+	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net"
 	"os"
+	"time"
 
-	"github.com/brianvoe/gofakeit/v6"
-	"github.com/defany/auth-service/app/pkg/gen/auth/v1"
+	"github.com/Masterminds/squirrel"
+	"github.com/defany/auth-service/app/pkg/gen/user/v1"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const port = 50001
 
-type server struct {
-	authv1.UnimplementedAuthServer
+const (
+	Users = "users"
+)
+
+var (
+	ErrCreateUser = errors.New("failed to create user")
+	ErrGetUser    = errors.New("failed to get user")
+	ErrUpdateUser = errors.New("failed to update user")
+	ErrDeleteUser = errors.New("failed to delete user")
+)
+
+type User struct {
+	ID              uint64    `db:"id"`
+	Name            string    `db:"name"`
+	Email           string    `db:"email"`
+	Password        string    `db:"password"`
+	PasswordConfirm string    `db:"password_confirm"`
+	Role            string    `db:"role"`
+	CreatedAt       time.Time `db:"created_at"`
+	UpdatedAt       time.Time `db:"updated_at"`
 }
 
-func (s *server) Create(ctx context.Context, request *authv1.CreateUserRequest) (*authv1.CreateUserResponse, error) {
+type server struct {
+	userv1.UnimplementedUserServiceServer
+
+	db *pgxpool.Pool
+	qb squirrel.StatementBuilderType
+}
+
+const dsn = "postgres://defany:137278DfN@postgres:5432/auth_service"
+
+func (s *server) Create(ctx context.Context, request *userv1.CreateRequest) (*userv1.CreateResponse, error) {
 	log := slog.With(
 		slog.String("name", request.GetName()),
 		slog.String("email", request.GetEmail()),
@@ -32,27 +65,78 @@ func (s *server) Create(ctx context.Context, request *authv1.CreateUserRequest) 
 
 	log.Info("create user request")
 
-	return &authv1.CreateUserResponse{
-		Id: gofakeit.Int64(),
+	q := s.qb.Insert(Users).
+		Columns("email", "password", "password_confirm", "role").
+		Values(request.GetEmail(), request.GetPassword(), request.GetPasswordConfirm(), request.GetRole()).
+		Suffix("returning id")
+
+	sql, args, err := q.ToSql()
+	if err != nil {
+		log.Error("failed build query to create user", slog.String("error", err.Error()))
+
+		return &userv1.CreateResponse{}, ErrCreateUser
+	}
+
+	rows, err := s.db.Query(ctx, sql, args...)
+	if err != nil {
+		log.Error("failed to execute query to create user", slog.String("error", err.Error()))
+
+		return &userv1.CreateResponse{}, ErrCreateUser
+	}
+
+	id, err := pgx.CollectOneRow(rows, pgx.RowTo[int64])
+	if err != nil {
+		log.Error("failed to collect user id from db", slog.String("error", err.Error()))
+
+		return &userv1.CreateResponse{}, ErrCreateUser
+	}
+
+	return &userv1.CreateResponse{
+		Id: id,
 	}, nil
 }
 
-func (s *server) Get(ctx context.Context, request *authv1.GetUserRequest) (*authv1.GetUserResponse, error) {
+func (s *server) Get(ctx context.Context, request *userv1.GetRequest) (*userv1.GetResponse, error) {
 	log := slog.With(
 		slog.Int64("id", request.GetId()),
 	)
 
 	log.Info("get user request")
 
-	resData := authv1.GetUserResponse{
-		Id:              request.GetId(),
-		Name:            gofakeit.Name(),
-		Email:           gofakeit.Email(),
-		Password:        gofakeit.Password(false, true, true, true, false, 6),
-		PasswordConfirm: gofakeit.BeerName(),
-		Role:            authv1.UserRole_ADMIN,
-		CreatedAt:       timestamppb.Now(),
-		UpdatedAt:       nil,
+	q := s.qb.Select("id", "email", "role", "created_at", "updated_at").
+		From(Users).
+		Where("id = ?", request.GetId())
+
+	sql, args, err := q.ToSql()
+	if err != nil {
+		log.Error("failed build query to get user", slog.String("error", err.Error()))
+
+		return &userv1.GetResponse{}, status.Error(codes.Internal, ErrGetUser.Error())
+	}
+
+	rows, err := s.db.Query(ctx, sql, args...)
+	if err != nil {
+		log.Error("failed to execute query to get user", slog.String("error", err.Error()))
+
+		return &userv1.GetResponse{}, status.Error(codes.Internal, ErrGetUser.Error())
+	}
+
+	user, err := pgx.CollectOneRow(rows, pgx.RowToStructByNameLax[User])
+	if err != nil {
+		log.Error("failed to collect user from db", slog.String("error", err.Error()))
+
+		return &userv1.GetResponse{}, status.Error(codes.Internal, ErrGetUser.Error())
+	}
+
+	roleNum := userv1.UserRole_value[user.Role]
+
+	resData := userv1.GetResponse{
+		Id:        int64(user.ID),
+		Name:      user.Name,
+		Email:     user.Email,
+		Role:      userv1.UserRole(roleNum),
+		CreatedAt: timestamppb.New(user.CreatedAt),
+		UpdatedAt: timestamppb.New(user.UpdatedAt),
 	}
 
 	log.Info("user info", slog.Any("info", &resData))
@@ -60,7 +144,7 @@ func (s *server) Get(ctx context.Context, request *authv1.GetUserRequest) (*auth
 	return &resData, nil
 }
 
-func (s *server) Update(ctx context.Context, request *authv1.UpdateUserRequest) (*emptypb.Empty, error) {
+func (s *server) Update(ctx context.Context, request *userv1.UpdateRequest) (*emptypb.Empty, error) {
 	log := slog.With(
 		slog.Int64("id", request.GetId()),
 		slog.String("email", request.GetEmail().GetValue()),
@@ -70,20 +154,76 @@ func (s *server) Update(ctx context.Context, request *authv1.UpdateUserRequest) 
 
 	log.Info("update user request")
 
+	q := s.qb.Update(Users).Where("id = ?", request.GetId())
+
+	if request.GetEmail() != nil {
+		q = q.Set("email", request.GetEmail().GetValue())
+	}
+
+	if request.GetName() != nil {
+		q = q.Set("name", request.GetName().GetValue())
+	}
+
+	if request.GetRole() != userv1.UserRole_UNKNOWN {
+		q = q.Set("role", request.GetRole().String())
+	}
+
+	sql, args, err := q.ToSql()
+	if err != nil {
+		log.Error("failed build query to update user", slog.String("error", err.Error()))
+
+		return &emptypb.Empty{}, status.Error(codes.Internal, ErrUpdateUser.Error())
+	}
+
+	_, err = s.db.Exec(ctx, sql, args...)
+	if err != nil {
+		log.Error("failed to execute query to update user", slog.String("error", err.Error()))
+
+		return &emptypb.Empty{}, status.Error(codes.Internal, ErrUpdateUser.Error())
+	}
+
 	return &emptypb.Empty{}, nil
 }
 
-func (s *server) Delete(ctx context.Context, request *authv1.DeleteUserRequest) (*emptypb.Empty, error) {
+func (s *server) Delete(ctx context.Context, request *userv1.DeleteRequest) (*emptypb.Empty, error) {
 	log := slog.With(
 		slog.Int64("id", request.GetId()),
 	)
 
 	log.Info("delete user request")
 
+	q := s.qb.Delete(Users).Where("id = ?", request.GetId())
+
+	sql, args, err := q.ToSql()
+	if err != nil {
+		log.Error("failed build query to delete user", slog.String("error", err.Error()))
+
+		return &emptypb.Empty{}, status.Error(codes.Internal, ErrDeleteUser.Error())
+	}
+
+	_, err = s.db.Exec(ctx, sql, args...)
+	if err != nil {
+		log.Error("failed to execute query to delete user", slog.String("error", err.Error()))
+
+		return &emptypb.Empty{}, status.Error(codes.Internal, ErrDeleteUser.Error())
+	}
+
 	return &emptypb.Empty{}, nil
 }
 
 func main() {
+	slog.SetLogLoggerLevel(slog.LevelDebug)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	pool, err := pgxpool.New(ctx, dsn)
+	if err != nil {
+		slog.Error("failed to connect to database", slog.String("error", err.Error()))
+		os.Exit(1)
+	}
+	defer pool.Close()
+
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		slog.Error("failed to listen: %v", err)
@@ -94,7 +234,7 @@ func main() {
 
 	reflection.Register(s)
 
-	authv1.RegisterAuthServer(s, &server{})
+	userv1.RegisterUserServiceServer(s, &server{})
 
 	slog.Info("listening", slog.String("port", lis.Addr().String()))
 
