@@ -28,7 +28,7 @@ type Database struct {
 	Database             string        `json:"database" env:"DATABASE" env-required:"true"`
 	MigrationsDir        string        `json:"migrations_dir" env:"DATABASE_MIGRATIONS_DIR" env-default:"migrations"`
 	ConnectAttempts      int           `json:"connect_attempts" env:"DATABASE_CONNECT_ATTEMPTS" env-default:"3"`
-	ConnectAttemptsDelay time.Duration `json:"connect_attempts_delay" env:"DATABASE_CONNECT_ATTEMPTS_DELAY" env-default:"5"`
+	ConnectAttemptsDelay time.Duration `json:"connect_attempts_delay" env:"DATABASE_CONNECT_ATTEMPTS_DELAY" env-default:"5s"`
 }
 
 type Config struct {
@@ -46,7 +46,7 @@ func MustLoad() *Config {
 	}
 
 	if _, err := os.Stat(confPath); os.IsNotExist(err) {
-		log.Fatalln(fmt.Sprintf("find with this path was not found: %s", confPath))
+		log.Fatalln(fmt.Sprintf("file with this path was not found: %s", confPath))
 	}
 
 	var cfg Config

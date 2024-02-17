@@ -3,12 +3,9 @@
   "database": {
     "username":  "defany",
     "password": "137278DfN",
-    "host":  "localhost",
+    "host":  "postgres",
     "port": "5432",
-    "database":  "auth-service",
-    "migrations_dir": "",
-    "connect_attempts":  "",
-    "connect_attempts_delay": ""
+    "database":  "auth_server"
   },
   "server": {
     "port": 50001
