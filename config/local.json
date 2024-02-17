@@ -1,0 +1,21 @@
+{
+  "env": "local",
+  "database": {
+    "username":  "defany",
+    "password": "137278DfN",
+    "host":  "localhost",
+    "port": "5432",
+    "database":  "auth-service",
+    "migrations_dir": "",
+    "connect_attempts":  "",
+    "connect_attempts_delay": ""
+  },
+  "server": {
+    "port": 50001
+  },
+  "logger": {
+    "level": "debug",
+    "add_source": false,
+    "format": "pretty"
+  }
+}

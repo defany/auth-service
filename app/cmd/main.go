@@ -10,7 +10,10 @@ import (
 	"time"
 
 	"github.com/Masterminds/squirrel"
+	"github.com/defany/auth-service/app/config"
 	"github.com/defany/auth-service/app/pkg/gen/user/v1"
+	"github.com/defany/auth-service/app/pkg/logger/sl"
+	"github.com/defany/auth-service/app/pkg/postgres"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"google.golang.org/grpc"
@@ -48,14 +51,13 @@ type User struct {
 type server struct {
 	userv1.UnimplementedUserServiceServer
 
-	db *pgxpool.Pool
-	qb squirrel.StatementBuilderType
+	db  *pgxpool.Pool
+	qb  squirrel.StatementBuilderType
+	log *slog.Logger
 }
 
-const dsn = "postgres://defany:137278DfN@postgres:5432/auth_service"
-
 func (s *server) Create(ctx context.Context, request *userv1.CreateRequest) (*userv1.CreateResponse, error) {
-	log := slog.With(
+	log := s.log.With(
 		slog.String("name", request.GetName()),
 		slog.String("email", request.GetEmail()),
 		slog.String("password", request.GetPassword()),
@@ -97,7 +99,7 @@ func (s *server) Create(ctx context.Context, request *userv1.CreateRequest) (*us
 }
 
 func (s *server) Get(ctx context.Context, request *userv1.GetRequest) (*userv1.GetResponse, error) {
-	log := slog.With(
+	log := s.log.With(
 		slog.Int64("id", request.GetId()),
 	)
 
@@ -145,7 +147,7 @@ func (s *server) Get(ctx context.Context, request *userv1.GetRequest) (*userv1.G
 }
 
 func (s *server) Update(ctx context.Context, request *userv1.UpdateRequest) (*emptypb.Empty, error) {
-	log := slog.With(
+	log := s.log.With(
 		slog.Int64("id", request.GetId()),
 		slog.String("email", request.GetEmail().GetValue()),
 		slog.String("name", request.GetName().GetValue()),
@@ -186,7 +188,7 @@ func (s *server) Update(ctx context.Context, request *userv1.UpdateRequest) (*em
 }
 
 func (s *server) Delete(ctx context.Context, request *userv1.DeleteRequest) (*emptypb.Empty, error) {
-	log := slog.With(
+	log := s.log.With(
 		slog.Int64("id", request.GetId()),
 	)
 
@@ -212,34 +214,40 @@ func (s *server) Delete(ctx context.Context, request *userv1.DeleteRequest) (*em
 }
 
 func main() {
-	slog.SetLogLoggerLevel(slog.LevelDebug)
+	cfg := config.MustLoad()
+
+	log := sl.NewSlogLogger(cfg.Logger)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	pool, err := pgxpool.New(ctx, dsn)
+	dbConfig := postgres.NewConfig(cfg.Database.Username, cfg.Database.Password, cfg.Database.Host, cfg.Database.Port, cfg.Database.Database)
+
+	db, err := postgres.NewClient(ctx, log, cfg.Database.ConnectAttempts, cfg.Database.ConnectAttemptsDelay, dbConfig)
 	if err != nil {
-		slog.Error("failed to connect to database", slog.String("error", err.Error()))
+		log.Error("failed to connect to database", slog.String("error", err.Error()))
 		os.Exit(1)
 	}
-	defer pool.Close()
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
-		slog.Error("failed to listen: %v", err)
+		log.Error("failed to listen", slog.String("error", err.Error()))
 		os.Exit(1)
 	}
 
 	s := grpc.NewServer()
-
 	reflection.Register(s)
 
-	userv1.RegisterUserServiceServer(s, &server{})
+	userv1.RegisterUserServiceServer(s, &server{
+		db:  db,
+		qb:  squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar),
+		log: log,
+	})
 
-	slog.Info("listening", slog.String("port", lis.Addr().String()))
+	log.Info("listening", slog.String("port", lis.Addr().String()))
 
 	if err := s.Serve(lis); err != nil {
-		slog.Error("failed to serve: %v", err)
+		log.Error("failed to server", slog.String("error", err.Error()))
 		os.Exit(1)
 	}
 }
