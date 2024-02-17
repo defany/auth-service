@@ -1,5 +1,5 @@
 bin
 .idea
 .env
-/config
+/config/*
 !/config/example.jsonc
