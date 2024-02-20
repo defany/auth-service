@@ -30,6 +30,17 @@ const (
 	Users = "users"
 )
 
+const (
+	UsersID              = "id"
+	UsersName            = "name"
+	UsersEmail           = "email"
+	UsersPassword        = "password"
+	UsersPasswordConfirm = "password_confirm"
+	UsersRole            = "role"
+	UsersCreatedAt       = "created_at"
+	UsersUpdatedAt       = "updated_at"
+)
+
 var (
 	ErrCreateUser = errors.New("failed to create user")
 	ErrGetUser    = errors.New("failed to get user")
@@ -58,39 +69,39 @@ type server struct {
 
 func (s *server) Create(ctx context.Context, request *userv1.CreateRequest) (*userv1.CreateResponse, error) {
 	log := s.log.With(
-		slog.String("name", request.GetName()),
-		slog.String("email", request.GetEmail()),
-		slog.String("password", request.GetPassword()),
-		slog.String("password_confirm", request.GetPasswordConfirm()),
-		slog.String("role", request.GetRole().String()),
+		slog.String(UsersName, request.GetName()),
+		slog.String(UsersEmail, request.GetEmail()),
+		slog.String(UsersPassword, request.GetPassword()),
+		slog.String(UsersPasswordConfirm, request.GetPasswordConfirm()),
+		slog.String(UsersRole, request.GetRole().String()),
 	)
 
 	log.Info("create user request")
 
 	q := s.qb.Insert(Users).
-		Columns("email", "password", "password_confirm", "role").
-		Values(request.GetEmail(), request.GetPassword(), request.GetPasswordConfirm(), request.GetRole()).
+		Columns(UsersName, UsersEmail, UsersPassword, UsersPasswordConfirm, UsersRole).
+		Values(request.GetName(), request.GetEmail(), request.GetPassword(), request.GetPasswordConfirm(), request.GetRole()).
 		Suffix("returning id")
 
 	sql, args, err := q.ToSql()
 	if err != nil {
 		log.Error("failed build query to create user", slog.String("error", err.Error()))
 
-		return &userv1.CreateResponse{}, ErrCreateUser
+		return nil, status.Error(codes.Internal, ErrCreateUser.Error())
 	}
 
 	rows, err := s.db.Query(ctx, sql, args...)
 	if err != nil {
 		log.Error("failed to execute query to create user", slog.String("error", err.Error()))
 
-		return &userv1.CreateResponse{}, ErrCreateUser
+		return nil, status.Error(codes.Internal, ErrCreateUser.Error())
 	}
 
 	id, err := pgx.CollectOneRow(rows, pgx.RowTo[int64])
 	if err != nil {
 		log.Error("failed to collect user id from db", slog.String("error", err.Error()))
 
-		return &userv1.CreateResponse{}, ErrCreateUser
+		return nil, status.Error(codes.Internal, ErrCreateUser.Error())
 	}
 
 	return &userv1.CreateResponse{
@@ -100,34 +111,36 @@ func (s *server) Create(ctx context.Context, request *userv1.CreateRequest) (*us
 
 func (s *server) Get(ctx context.Context, request *userv1.GetRequest) (*userv1.GetResponse, error) {
 	log := s.log.With(
-		slog.Int64("id", request.GetId()),
+		slog.Int64(UsersID, request.GetId()),
 	)
 
 	log.Info("get user request")
 
-	q := s.qb.Select("id", "email", "role", "created_at", "updated_at").
+	q := s.qb.Select(UsersID, UsersEmail, UsersRole, UsersCreatedAt, UsersUpdatedAt).
 		From(Users).
-		Where("id = ?", request.GetId())
+		Where(squirrel.Eq{
+			UsersID: request.GetId(),
+		})
 
 	sql, args, err := q.ToSql()
 	if err != nil {
 		log.Error("failed build query to get user", slog.String("error", err.Error()))
 
-		return &userv1.GetResponse{}, status.Error(codes.Internal, ErrGetUser.Error())
+		return nil, status.Error(codes.Internal, ErrGetUser.Error())
 	}
 
 	rows, err := s.db.Query(ctx, sql, args...)
 	if err != nil {
 		log.Error("failed to execute query to get user", slog.String("error", err.Error()))
 
-		return &userv1.GetResponse{}, status.Error(codes.Internal, ErrGetUser.Error())
+		return nil, status.Error(codes.Internal, ErrGetUser.Error())
 	}
 
 	user, err := pgx.CollectOneRow(rows, pgx.RowToStructByNameLax[User])
 	if err != nil {
 		log.Error("failed to collect user from db", slog.String("error", err.Error()))
 
-		return &userv1.GetResponse{}, status.Error(codes.Internal, ErrGetUser.Error())
+		return nil, status.Error(codes.Internal, ErrGetUser.Error())
 	}
 
 	roleNum := userv1.UserRole_value[user.Role]
@@ -148,40 +161,42 @@ func (s *server) Get(ctx context.Context, request *userv1.GetRequest) (*userv1.G
 
 func (s *server) Update(ctx context.Context, request *userv1.UpdateRequest) (*emptypb.Empty, error) {
 	log := s.log.With(
-		slog.Int64("id", request.GetId()),
-		slog.String("email", request.GetEmail().GetValue()),
-		slog.String("name", request.GetName().GetValue()),
-		slog.String("role", request.GetRole().String()),
+		slog.Int64(UsersID, request.GetId()),
+		slog.String(UsersEmail, request.GetEmail().GetValue()),
+		slog.String(UsersName, request.GetName().GetValue()),
+		slog.String(UsersRole, request.GetRole().String()),
 	)
 
 	log.Info("update user request")
 
-	q := s.qb.Update(Users).Where("id = ?", request.GetId())
+	q := s.qb.Update(Users).Where(squirrel.Eq{
+		UsersID: request.GetId(),
+	})
 
 	if request.GetEmail() != nil {
-		q = q.Set("email", request.GetEmail().GetValue())
+		q = q.Set(UsersEmail, request.GetEmail().GetValue())
 	}
 
 	if request.GetName() != nil {
-		q = q.Set("name", request.GetName().GetValue())
+		q = q.Set(UsersName, request.GetName().GetValue())
 	}
 
 	if request.GetRole() != userv1.UserRole_UNKNOWN {
-		q = q.Set("role", request.GetRole().String())
+		q = q.Set(UsersRole, request.GetRole().String())
 	}
 
 	sql, args, err := q.ToSql()
 	if err != nil {
 		log.Error("failed build query to update user", slog.String("error", err.Error()))
 
-		return &emptypb.Empty{}, status.Error(codes.Internal, ErrUpdateUser.Error())
+		return nil, status.Error(codes.Internal, ErrUpdateUser.Error())
 	}
 
 	_, err = s.db.Exec(ctx, sql, args...)
 	if err != nil {
 		log.Error("failed to execute query to update user", slog.String("error", err.Error()))
 
-		return &emptypb.Empty{}, status.Error(codes.Internal, ErrUpdateUser.Error())
+		return nil, status.Error(codes.Internal, ErrUpdateUser.Error())
 	}
 
 	return &emptypb.Empty{}, nil
@@ -194,20 +209,22 @@ func (s *server) Delete(ctx context.Context, request *userv1.DeleteRequest) (*em
 
 	log.Info("delete user request")
 
-	q := s.qb.Delete(Users).Where("id = ?", request.GetId())
+	q := s.qb.Delete(Users).Where(squirrel.Eq{
+		UsersID: request.GetId(),
+	})
 
 	sql, args, err := q.ToSql()
 	if err != nil {
 		log.Error("failed build query to delete user", slog.String("error", err.Error()))
 
-		return &emptypb.Empty{}, status.Error(codes.Internal, ErrDeleteUser.Error())
+		return nil, status.Error(codes.Internal, ErrDeleteUser.Error())
 	}
 
 	_, err = s.db.Exec(ctx, sql, args...)
 	if err != nil {
 		log.Error("failed to execute query to delete user", slog.String("error", err.Error()))
 
-		return &emptypb.Empty{}, status.Error(codes.Internal, ErrDeleteUser.Error())
+		return nil, status.Error(codes.Internal, ErrDeleteUser.Error())
 	}
 
 	return &emptypb.Empty{}, nil
