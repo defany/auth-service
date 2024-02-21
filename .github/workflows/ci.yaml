@@ -73,7 +73,7 @@ jobs:
     needs: build-push
 
     steps:
-      - name: Deploy to server via SSH action
+      - name: Deploy migrator to server via SSH action
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -88,15 +88,31 @@ jobs:
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }} $REGISTRY
             
             # Stop running container
-            docker stop $CONTAINER_NAME
-            
-            # Remove old container
-            docker rm $CONTAINER_NAME
+            docker stop $MIGRATOR_CONTAINER_NAME
             
             docker rm $MIGRATOR_CONTAINER_NAME
             
-            # Run migrations before setup server
+            # Run migrations service
             docker run -d --restart=always --name $MIGRATOR_CONTAINER_NAME -t $REGISTRY/$MIGRATOR_CONTAINER_NAME:$TAG_NAME
-            
-            # Run a new container from a new image
+      - name: Deploy service to server via SSH action
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          envs: IMAGE_NAME, REGISTRY, GITHUB_SHA, CONTAINER_NAME
+          script: |
+            # Set up variables
+            TAG_NAME=$(echo $GITHUB_SHA | head -c7)
+
+            # Login into docker
+            docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }} $REGISTRY
+
+            # Stop running container
+            docker stop $CONTAINER_NAME
+
+            # Remove old container
+            docker rm $CONTAINER_NAME
+
+            # Run server
             docker run -d -p 50100:50001 --restart=always --name $CONTAINER_NAME -t $REGISTRY/$IMAGE_NAME:$TAG_NAME
