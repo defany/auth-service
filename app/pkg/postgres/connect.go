@@ -11,12 +11,20 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+const (
+	defaultMaxConnAttempts = 3
+	defaultRetryConnDelay  = time.Second
+)
+
 type Config struct {
 	Username string
 	Password string
 	Host     string
 	Port     string
 	Database string
+
+	maxConnAttempts int
+	retryConnDelay  time.Duration
 }
 
 func (c *Config) dsn() string {
@@ -34,13 +42,28 @@ func NewConfig(username string, password string, host string, port string, datab
 		Host:     host,
 		Port:     port,
 		Database: database,
+
+		maxConnAttempts: defaultMaxConnAttempts,
+		retryConnDelay:  defaultRetryConnDelay,
 	}
 }
 
-func NewClient(ctx context.Context, log *slog.Logger, maxAttempts int, maxDelay time.Duration, cfg *Config) (pool *pgxpool.Pool, err error) {
+func (c *Config) WithMaxConnAttempts(attempts int) *Config {
+	c.maxConnAttempts = attempts
+
+	return c
+}
+
+func (c *Config) WithRetryConnDelay(delay time.Duration) *Config {
+	c.retryConnDelay = delay
+
+	return c
+}
+
+func NewClient(ctx context.Context, log *slog.Logger, cfg *Config) (pool *pgxpool.Pool, err error) {
 	dsn := cfg.dsn()
 
-	err = retry.WithAttempts(maxAttempts, maxDelay, func() error {
+	err = retry.WithAttempts(cfg.maxConnAttempts, cfg.retryConnDelay, func() error {
 		log.Info("connecting to postgresql database...")
 
 		ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
