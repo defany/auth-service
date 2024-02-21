@@ -1,0 +1,21 @@
+{
+  "env": "production", // dev | local | production
+  "database": {
+    "username":  "defany",
+    "password": "137278DfN",
+    "host":  "localhost",
+    "port": "5432",
+    "database":  "auth-service",
+    "migrations_dir": "", // default=migrations
+    "connect_attempts":  "", // default=3
+    "connect_attempts_delay": "" // in sec. default=5 sec
+  },
+  "server": {
+    "port": 50001 // default=50001
+  },
+  "logger": {
+    "level": "debug", // default=debug
+    "add_source": false,
+    "format": "json" // default=pretty; variants: json | text | pretty
+  }
+}
