@@ -17,10 +17,10 @@ type TxManager interface {
 type Handler func(ctx context.Context) error
 
 type txManager struct {
-	db Querier
+	db Postgres
 }
 
-func NewTxManager(db Querier) TxManager {
+func NewTxManager(db Postgres) TxManager {
 	return &txManager{
 		db: db,
 	}

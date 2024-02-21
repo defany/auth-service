@@ -22,11 +22,11 @@ const (
 )
 
 type repository struct {
-	db postgres.Querier
+	db postgres.Postgres
 	qb squirrel.StatementBuilderType
 }
 
-func NewRepository(db postgres.Querier) repo.UserRepository {
+func NewRepository(db postgres.Postgres) repo.UserRepository {
 	return &repository{
 		db: db,
 		qb: squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar),

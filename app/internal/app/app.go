@@ -11,12 +11,16 @@ import (
 )
 
 type App struct {
-	di         *di
+	di         *DI
 	grpcServer *grpc.Server
 }
 
-func NewApp() App {
-	return App{}
+func NewApp() *App {
+	a := &App{}
+
+	a.setupDI()
+
+	return a
 }
 
 func (a *App) Run(ctx context.Context) error {
@@ -33,6 +37,10 @@ func (a *App) Run(ctx context.Context) error {
 	a.registerUserService(ctx)
 
 	return a.runGRPCServer(ctx)
+}
+
+func (a *App) DI() *DI {
+	return a.di
 }
 
 func (a *App) setupDI() {

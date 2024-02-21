@@ -8,12 +8,14 @@ import (
 	"log/slog"
 )
 
-type Querier interface {
+type Postgres interface {
 	Query(ctx context.Context, query string, args ...interface{}) (pgx.Rows, error)
 	QueryRow(ctx context.Context, query string, args ...interface{}) pgx.Row
 	Exec(ctx context.Context, query string, args ...interface{}) (commandTag pgconn.CommandTag, err error)
 
 	BeginTx(ctx context.Context, txOptions pgx.TxOptions) (pgx.Tx, error)
+
+	Pool() *pgxpool.Pool
 
 	Close()
 }
@@ -24,7 +26,7 @@ type postgres struct {
 	db *pgxpool.Pool
 }
 
-func NewPostgres(ctx context.Context, log *slog.Logger, cfg *Config) (Querier, error) {
+func NewPostgres(ctx context.Context, log *slog.Logger, cfg *Config) (Postgres, error) {
 	p := &postgres{
 		log: log,
 	}
@@ -68,6 +70,10 @@ func (p *postgres) Exec(ctx context.Context, query string, args ...interface{}) 
 
 func (p *postgres) BeginTx(ctx context.Context, txOptions pgx.TxOptions) (pgx.Tx, error) {
 	return p.db.BeginTx(ctx, txOptions)
+}
+
+func (p *postgres) Pool() *pgxpool.Pool {
+	return p.db
 }
 
 func (p *postgres) Close() {

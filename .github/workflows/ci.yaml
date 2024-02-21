@@ -10,6 +10,7 @@ env:
   REGISTRY: "defany"
   IMAGE_NAME: "user-service"
   CONTAINER_NAME: "user-service"
+  IMAGE_NAME_MIGRATOR: "migrator"
 
 jobs:
   build-test:
@@ -66,6 +67,9 @@ jobs:
           TAG_NAME=$(echo $GITHUB_SHA | head -c7)
           docker buildx create --use
           docker buildx build --no-cache --push --tag $REGISTRY/$IMAGE_NAME:$TAG_NAME .
+          
+          docker buildx create --use -f migrator.Dockerfile
+          docker buildx build --no-cache --push --tag $REGISTRY/$IMAGE_NAME-$IMAGE_NAME_MIGRATOR:$TAG_NAME .
 
   deploy:
     runs-on: ubuntu-latest
@@ -83,7 +87,7 @@ jobs:
             # Set up variables
             TAG_NAME=$(echo $GITHUB_SHA | head -c7)
             
-            # Login into Selectel Registry
+            # Login into docker
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }} $REGISTRY
             
             # Stop running container
@@ -91,6 +95,9 @@ jobs:
             
             # Remove old container
             docker rm $CONTAINER_NAME
+            
+            # Run migrations before next container
+            docker run --name $CONTAINER_NAME -t $REGISTRY/$IMAGE_NAME-$IMAGE_NAME_MIGRATOR:$TAG_NAME
             
             # Run a new container from a new image
             docker run -d -p 50100:50001 --restart=always --name $CONTAINER_NAME -t $REGISTRY/$IMAGE_NAME:$TAG_NAME

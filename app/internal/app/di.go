@@ -15,7 +15,7 @@ import (
 	"os"
 )
 
-type di struct {
+type DI struct {
 	log *slog.Logger
 
 	cfg *config.Config
@@ -33,14 +33,14 @@ type di struct {
 	}
 
 	txManager postgres.TxManager
-	db        postgres.Querier
+	db        postgres.Postgres
 }
 
-func newDI() *di {
-	return &di{}
+func newDI() *DI {
+	return &DI{}
 }
 
-func (d *di) Log(ctx context.Context) *slog.Logger {
+func (d *DI) Log(ctx context.Context) *slog.Logger {
 	if d.log != nil {
 		return d.log
 	}
@@ -50,7 +50,7 @@ func (d *di) Log(ctx context.Context) *slog.Logger {
 	return d.log
 }
 
-func (d *di) Config(_ context.Context) *config.Config {
+func (d *DI) Config(_ context.Context) *config.Config {
 	if d.cfg != nil {
 		return d.cfg
 	}
@@ -60,7 +60,7 @@ func (d *di) Config(_ context.Context) *config.Config {
 	return d.cfg
 }
 
-func (d *di) Database(ctx context.Context) postgres.Querier {
+func (d *DI) Database(ctx context.Context) postgres.Postgres {
 	if d.db != nil {
 		return d.db
 	}
@@ -90,7 +90,7 @@ func (d *di) Database(ctx context.Context) postgres.Querier {
 	return d.db
 }
 
-func (d *di) TxManager(ctx context.Context) postgres.TxManager {
+func (d *DI) TxManager(ctx context.Context) postgres.TxManager {
 	if d.txManager != nil {
 		return d.txManager
 	}
@@ -100,7 +100,7 @@ func (d *di) TxManager(ctx context.Context) postgres.TxManager {
 	return d.txManager
 }
 
-func (d *di) UserRepo(ctx context.Context) repository.UserRepository {
+func (d *DI) UserRepo(ctx context.Context) repository.UserRepository {
 	if d.repositories.user != nil {
 		return d.repositories.user
 	}
@@ -110,7 +110,7 @@ func (d *di) UserRepo(ctx context.Context) repository.UserRepository {
 	return d.repositories.user
 }
 
-func (d *di) UserService(ctx context.Context) defserv.UserService {
+func (d *DI) UserService(ctx context.Context) defserv.UserService {
 	if d.services.user != nil {
 		return d.services.user
 	}
@@ -120,7 +120,7 @@ func (d *di) UserService(ctx context.Context) defserv.UserService {
 	return d.services.user
 }
 
-func (d *di) UserImpl(ctx context.Context) *user.Implementation {
+func (d *DI) UserImpl(ctx context.Context) *user.Implementation {
 	if d.implementations.user != nil {
 		return d.implementations.user
 	}
