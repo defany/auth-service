@@ -10,7 +10,7 @@ env:
   REGISTRY: "defany"
   IMAGE_NAME: "user-service"
   CONTAINER_NAME: "user-service"
-  MIGRATOR_CONTAINER_NAME: "user-service/migrator"
+  MIGRATOR_CONTAINER_NAME: "user-service-migrator"
 
 jobs:
   build-test:
