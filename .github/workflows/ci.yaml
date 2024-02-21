@@ -11,7 +11,7 @@ env:
   IMAGE_NAME: "user-service"
   CONTAINER_NAME: "user-service"
   MIGRATOR_IMAGE_NAME: "user-service-migrator"
-  MIGRATOR_CONTAINER_NAME: "user_service_migrator"
+  MIGRATOR_CONTAINER_NAME: "user-service-migrator"
 
 jobs:
   build-test:
@@ -80,7 +80,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
-          envs: IMAGE_NAME, REGISTRY, GITHUB_SHA, CONTAINER_NAME
+          envs: IMAGE_NAME, REGISTRY, GITHUB_SHA, MIGRATOR_IMAGE_NAME, MIGRATOR_CONTAINER_NAME
           script: |
             # Set up variables
             TAG_NAME=$(echo $GITHUB_SHA | head -c7)
