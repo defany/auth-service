@@ -96,7 +96,7 @@ jobs:
             docker rm $MIGRATOR_CONTAINER_NAME
             
             # Run migrations before setup server
-            docker run --name $CONTAINER_NAME --restart=unless-stopped -t $REGISTRY/$MIGRATOR_CONTAINER_NAME:$TAG_NAME
+            docker run -d --name $CONTAINER_NAME --restart=unless-stopped -t $REGISTRY/$MIGRATOR_CONTAINER_NAME:$TAG_NAME
             
             # Run a new container from a new image
             docker run -d -p 50100:50001 --restart=always --name $CONTAINER_NAME -t $REGISTRY/$IMAGE_NAME:$TAG_NAME
