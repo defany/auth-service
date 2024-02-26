@@ -5,7 +5,7 @@ import (
 	"github.com/Masterminds/squirrel"
 )
 
-func (r *repository) Delete(ctx context.Context, id int) error {
+func (r *repository) Delete(ctx context.Context, id uint64) error {
 	q := r.qb.Delete(table).Where(squirrel.Eq{
 		idColumn: id,
 	})

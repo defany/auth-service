@@ -12,7 +12,7 @@ type User struct {
 	PasswordConfirm string
 	Role            string
 	CreatedAt       time.Time
-	UpdatedAt       *time.Time
+	UpdatedAt       time.Time
 }
 
 type UserCreate struct {

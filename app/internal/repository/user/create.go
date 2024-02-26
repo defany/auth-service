@@ -7,7 +7,7 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-func (r *repository) Create(ctx context.Context, user model.UserCreate) (int, error) {
+func (r *repository) Create(ctx context.Context, user model.UserCreate) (uint64, error) {
 	q := r.qb.Insert(table).
 		Columns(nameColumn, emailColumn, passwordColumn, passwordConfirmColumn, roleColumn).
 		Values(user.Name, user.Email, user.Password, user.PasswordConfirm, user.Role).
@@ -23,7 +23,7 @@ func (r *repository) Create(ctx context.Context, user model.UserCreate) (int, er
 		return 0, err
 	}
 
-	id, err := pgx.CollectOneRow(rows, pgx.RowTo[int])
+	id, err := pgx.CollectOneRow(rows, pgx.RowTo[uint64])
 	if err != nil {
 		return 0, err
 	}

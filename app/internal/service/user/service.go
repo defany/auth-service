@@ -9,11 +9,13 @@ import (
 type service struct {
 	tx   postgres.TxManager
 	repo repository.UserRepository
+	log  repository.LogRepository
 }
 
-func NewService(tx postgres.TxManager, repo repository.UserRepository) defserv.UserService {
+func NewService(tx postgres.TxManager, repo repository.UserRepository, log repository.LogRepository) defserv.UserService {
 	return &service{
 		tx:   tx,
 		repo: repo,
+		log:  log,
 	}
 }

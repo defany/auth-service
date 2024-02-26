@@ -38,7 +38,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "50001:50001"
+      - "50002:50001"
     restart: on-failure
     # Не придумал как ожидать завершения мигратора
     depends_on:

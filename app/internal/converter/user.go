@@ -24,7 +24,7 @@ func ToGetResponse(input model.User) *userv1.GetResponse {
 		Email:     input.Email,
 		Role:      ToUserProtoRole(input.Role),
 		CreatedAt: timestamppb.New(input.CreatedAt),
-		UpdatedAt: cond.Ternary(input.UpdatedAt != nil, timestamppb.New(*input.UpdatedAt), nil),
+		UpdatedAt: cond.Ternary(!input.UpdatedAt.IsZero(), timestamppb.New(input.UpdatedAt), nil),
 	}
 }
 

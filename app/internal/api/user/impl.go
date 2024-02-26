@@ -6,6 +6,8 @@ import (
 	"log/slog"
 )
 
+var _ userv1.UserServiceServer = (*Implementation)(nil)
+
 type Implementation struct {
 	userv1.UnimplementedUserServiceServer
 

@@ -17,7 +17,7 @@ func (i *Implementation) Get(ctx context.Context, request *userv1.GetRequest) (*
 
 	log.Info("getting user by id")
 
-	output, err := i.service.Get(ctx, int(request.GetId()))
+	output, err := i.service.Get(ctx, uint64(request.GetId()))
 	if err != nil {
 		log.Error("failed to get user by id", sl.OpErrAttr(op, err))
 

@@ -5,6 +5,7 @@ import (
 	"github.com/defany/auth-service/app/internal/api/user"
 	"github.com/defany/auth-service/app/internal/config"
 	"github.com/defany/auth-service/app/internal/repository"
+	logrepo "github.com/defany/auth-service/app/internal/repository/log"
 	userrepo "github.com/defany/auth-service/app/internal/repository/user"
 	defserv "github.com/defany/auth-service/app/internal/service"
 	userservice "github.com/defany/auth-service/app/internal/service/user"
@@ -22,6 +23,7 @@ type DI struct {
 
 	repositories struct {
 		user repository.UserRepository
+		log  repository.LogRepository
 	}
 
 	services struct {
@@ -110,12 +112,22 @@ func (d *DI) UserRepo(ctx context.Context) repository.UserRepository {
 	return d.repositories.user
 }
 
+func (d *DI) LogRepo(ctx context.Context) repository.LogRepository {
+	if d.repositories.log != nil {
+		return d.repositories.log
+	}
+
+	d.repositories.log = logrepo.NewRepository(d.Database(ctx))
+
+	return d.repositories.log
+}
+
 func (d *DI) UserService(ctx context.Context) defserv.UserService {
 	if d.services.user != nil {
 		return d.services.user
 	}
 
-	d.services.user = userservice.NewService(d.TxManager(ctx), d.UserRepo(ctx))
+	d.services.user = userservice.NewService(d.TxManager(ctx), d.UserRepo(ctx), d.LogRepo(ctx))
 
 	return d.services.user
 }

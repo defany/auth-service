@@ -9,7 +9,7 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-func (r *repository) User(ctx context.Context, id int) (model.User, error) {
+func (r *repository) User(ctx context.Context, id uint64) (model.User, error) {
 	q := r.qb.Select(idColumn, emailColumn, nameColumn, roleColumn, createdAtColumn, updatedAtColumn).
 		From(table).
 		Where(squirrel.Eq{

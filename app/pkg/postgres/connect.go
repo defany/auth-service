@@ -27,14 +27,6 @@ type Config struct {
 	retryConnDelay  time.Duration
 }
 
-func (c *Config) dsn() string {
-	return fmt.Sprintf(
-		"postgresql://%s:%s@%s:%s/%s",
-		c.Username, c.Password,
-		c.Host, c.Port, c.Database,
-	)
-}
-
 func NewConfig(username string, password string, host string, port string, database string) *Config {
 	return &Config{
 		Username: username,
@@ -46,6 +38,14 @@ func NewConfig(username string, password string, host string, port string, datab
 		maxConnAttempts: defaultMaxConnAttempts,
 		retryConnDelay:  defaultRetryConnDelay,
 	}
+}
+
+func (c *Config) dsn() string {
+	return fmt.Sprintf(
+		"postgresql://%s:%s@%s:%s/%s",
+		c.Username, c.Password,
+		c.Host, c.Port, c.Database,
+	)
 }
 
 func (c *Config) WithMaxConnAttempts(attempts int) *Config {

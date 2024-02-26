@@ -27,13 +27,20 @@ docker-run:
 	docker run -p 50001:50001 $(REGISTRY)/$(CONTAINER_NAME)
 
 migrate-up:
-	goose -dir $(MIGRATIONS_DIR) postgres "user=${PG_USER} dbname=${PG_DATABASE_NAME} sslmode=disable password=${PG_PASSWORD}" up -v
+	goose -dir $(MIGRATIONS_DIR) postgres "user=${PG_USER} port=${PG_PORT} dbname=${PG_DATABASE_NAME} sslmode=disable password=${PG_PASSWORD}" up -v
 
 migrate-down:
-	goose -dir $(MIGRATIONS_DIR) postgres "user=${PG_USER} dbname=${PG_DATABASE_NAME} sslmode=disable password=${PG_PASSWORD}" down -v
+	goose -dir $(MIGRATIONS_DIR) postgres "user=${PG_USER} port=${PG_PORT} dbname=${PG_DATABASE_NAME} sslmode=disable password=${PG_PASSWORD}" down -v
 
 migrate-status:
-	goose -dir $(MIGRATIONS_DIR) postgres "user=${PG_USER} dbname=${PG_DATABASE_NAME} sslmode=disable password=${PG_PASSWORD}" status -v
+	goose -dir $(MIGRATIONS_DIR) postgres "user=${PG_USER} port=${PG_PORT} dbname=${PG_DATABASE_NAME} sslmode=disable password=${PG_PASSWORD}" status -v
+
+up-no-cache:
+	docker compose down
+
+	docker compose build --no-cache
+
+	docker compose up -d
 
 up:
 	docker compose up --build -d

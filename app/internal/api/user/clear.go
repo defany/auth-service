@@ -13,7 +13,7 @@ import (
 func (i *Implementation) Delete(ctx context.Context, req *userv1.DeleteRequest) (*emptypb.Empty, error) {
 	log := i.log.With(slog.String("op", sl.FnName()))
 
-	err := i.service.Delete(ctx, int(req.GetId()))
+	err := i.service.Delete(ctx, uint64(req.GetId()))
 	if err != nil {
 		log.Error("failed to delete user", sl.ErrAttr(err))
 
