@@ -3,12 +3,9 @@ package userservice
 import (
 	"context"
 	"github.com/defany/auth-service/app/internal/model"
-	"github.com/defany/auth-service/app/pkg/logger/sl"
 )
 
 func (s *service) Create(ctx context.Context, user model.UserCreate) (uint64, error) {
-	op := sl.FnName()
-
 	var userID uint64
 
 	err := s.tx.ReadCommitted(ctx, func(ctx context.Context) error {
@@ -30,7 +27,7 @@ func (s *service) Create(ctx context.Context, user model.UserCreate) (uint64, er
 		return nil
 	})
 	if err != nil {
-		return 0, sl.Err(op, err)
+		return 0, err
 	}
 
 	return userID, nil

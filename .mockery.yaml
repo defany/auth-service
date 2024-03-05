@@ -1,0 +1,15 @@
+with-expecter: True
+dir: "{{.InterfaceDir}}/mocks"
+mockname: "Mock{{.InterfaceName}}"
+outpkg: "mock{{.PackageName}}"
+filename: "{{.InterfaceName}}.go"
+all: True
+packages:
+  github.com/defany/auth-service:
+    config:
+      recursive: True
+      exclude:
+        - app/pkg
+  github.com/defany/auth-service/app/pkg/postgres:
+    interfaces:
+      TxManager:

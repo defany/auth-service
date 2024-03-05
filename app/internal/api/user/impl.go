@@ -2,7 +2,7 @@ package user
 
 import (
 	defserv "github.com/defany/auth-service/app/internal/service"
-	userv1 "github.com/defany/auth-service/app/pkg/gen/user/v1"
+	userv1 "github.com/defany/auth-service/app/pkg/gen/proto/user/v1"
 	"log/slog"
 )
 

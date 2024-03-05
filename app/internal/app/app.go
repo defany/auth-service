@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/defany/auth-service/app/pkg/closer"
-	userv1 "github.com/defany/auth-service/app/pkg/gen/user/v1"
+	userv1 "github.com/defany/auth-service/app/pkg/gen/proto/user/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"net"
