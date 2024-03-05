@@ -10,6 +10,8 @@ env:
   REGISTRY: "defany"
   IMAGE_NAME: "user-service"
   CONTAINER_NAME: "user-service"
+  MIGRATOR_IMAGE_NAME: "user-service-migrator"
+  MIGRATOR_CONTAINER_NAME: "user-service-migrator"
 
 jobs:
   build-test:
@@ -64,15 +66,37 @@ jobs:
       - name: Build and Push Docker Image
         run: |
           TAG_NAME=$(echo $GITHUB_SHA | head -c7)
-          docker buildx create --use
-          docker buildx build --no-cache --push --tag $REGISTRY/$IMAGE_NAME:$TAG_NAME .
-
+          docker build --no-cache --push --tag $REGISTRY/$IMAGE_NAME:$TAG_NAME .
+          
+          docker build --no-cache --push --tag $REGISTRY/$MIGRATOR_IMAGE_NAME:$TAG_NAME -f ./migrator.Dockerfile .
   deploy:
     runs-on: ubuntu-latest
     needs: build-push
 
     steps:
-      - name: Deploy to server via SSH action
+      - name: Deploy migrator to server via SSH action
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          envs: IMAGE_NAME, REGISTRY, GITHUB_SHA, MIGRATOR_IMAGE_NAME, MIGRATOR_CONTAINER_NAME
+          script: |
+            # Set up variables
+            TAG_NAME=$(echo $GITHUB_SHA | head -c7)
+            
+            # Login into docker
+            docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }} $REGISTRY
+            
+            # Stop running migrator
+            docker stop $MIGRATOR_CONTAINER_NAME
+            
+            # Remove old migrator
+            docker rm $MIGRATOR_CONTAINER_NAME
+            
+            # Run migrations service
+            docker run -d --restart=always --name $MIGRATOR_IMAGE_NAME -t $REGISTRY/$MIGRATOR_IMAGE_NAME:$TAG_NAME
+      - name: Deploy service to server via SSH action
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -82,15 +106,15 @@ jobs:
           script: |
             # Set up variables
             TAG_NAME=$(echo $GITHUB_SHA | head -c7)
-            
-            # Login into Selectel Registry
+
+            # Login into docker
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }} $REGISTRY
-            
+
             # Stop running container
             docker stop $CONTAINER_NAME
-            
+
             # Remove old container
             docker rm $CONTAINER_NAME
-            
-            # Run a new container from a new image
-            docker run -d -p 50100:50001 --name $CONTAINER_NAME -t $REGISTRY/$IMAGE_NAME:$TAG_NAME
+
+            # Run server
+            docker run -d -p 50100:50001 --restart=always --name $CONTAINER_NAME -t $REGISTRY/$IMAGE_NAME:$TAG_NAME

@@ -939,62 +939,12 @@ func (m *UpdateRequest) validate(all bool) error {
 
 	// no validation rules for Id
 
-	if all {
-		switch v := interface{}(m.GetName()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, UpdateRequestValidationError{
-					field:  "Name",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, UpdateRequestValidationError{
-					field:  "Name",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetName()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return UpdateRequestValidationError{
-				field:  "Name",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	if m.Name != nil {
+		// no validation rules for Name
 	}
 
-	if all {
-		switch v := interface{}(m.GetEmail()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, UpdateRequestValidationError{
-					field:  "Email",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, UpdateRequestValidationError{
-					field:  "Email",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetEmail()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return UpdateRequestValidationError{
-				field:  "Email",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	if m.Email != nil {
+		// no validation rules for Email
 	}
 
 	if m.Role != nil {
