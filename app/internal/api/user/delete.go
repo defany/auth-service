@@ -3,7 +3,7 @@ package user
 import (
 	"context"
 	userv1 "github.com/defany/auth-service/app/pkg/gen/proto/user/v1"
-	"github.com/defany/auth-service/app/pkg/logger/sl"
+	"github.com/defany/slogger/pkg/logger/sl"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"

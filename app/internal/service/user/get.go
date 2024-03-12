@@ -3,7 +3,7 @@ package userservice
 import (
 	"context"
 	"github.com/defany/auth-service/app/internal/model"
-	"github.com/defany/auth-service/app/pkg/logger/sl"
+	"github.com/defany/slogger/pkg/logger/sl"
 )
 
 func (s *service) Get(ctx context.Context, id uint64) (model.User, error) {

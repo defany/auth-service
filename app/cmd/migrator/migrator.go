@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"github.com/defany/auth-service/app/internal/app"
-	"github.com/defany/auth-service/app/pkg/logger/sl"
-	"github.com/defany/auth-service/app/pkg/postgres"
+	"github.com/defany/db/pkg/postgres"
+	"github.com/defany/slogger/pkg/logger/sl"
 	"log/slog"
 )
 

@@ -10,8 +10,8 @@ import (
 	defserv "github.com/defany/auth-service/app/internal/service"
 	userservice "github.com/defany/auth-service/app/internal/service/user"
 	"github.com/defany/auth-service/app/pkg/closer"
-	"github.com/defany/auth-service/app/pkg/logger/sl"
-	"github.com/defany/auth-service/app/pkg/postgres"
+	"github.com/defany/db/pkg/postgres"
+	"github.com/defany/slogger/pkg/logger/sl"
 	"log/slog"
 	"os"
 )

@@ -26,6 +26,12 @@ github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ3
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/defany/db v0.0.0-20240312125816-c835b8b00496 h1:C9k6lD1F5VUcPSAF22sZwmOnTjWuC/2+dbgPXq6Pxgk=
+github.com/defany/db v0.0.0-20240312125816-c835b8b00496/go.mod h1:hqyy4310NRMP5TzN2/bPEYwom9geykD9G3b13KeThdA=
+github.com/defany/db v1.0.0 h1:QQslqcsfMH1nNWPYcN08pFX4yEjzQv9FZKM10+Qw154=
+github.com/defany/db v1.0.0/go.mod h1:wf1ufss+yw+jKmWtonRZ38S8VcmqJQMhkXox8g0gRGk=
+github.com/defany/slogger v0.0.0-20240312111244-c9218f55e9fb h1:oAWKsAAPQ4dkblCTQtisfYSlegmGNcdqCOmvssLT4Uc=
+github.com/defany/slogger v0.0.0-20240312111244-c9218f55e9fb/go.mod h1:Gq2dkMcTOF57xcogrloDSppv63NGE+ofUUKcK1OkO2I=
 github.com/docker/cli v24.0.7+incompatible h1:wa/nIwYFW7BVTGa7SWPVyyXU9lgORqUb1xfI36MSkFg=
 github.com/docker/cli v24.0.7+incompatible/go.mod h1:JLrzqnKDaYBop7H2jaqPtU4hHvMKP+vjCwu2uszcLI8=
 github.com/docker/docker v24.0.7+incompatible h1:Wo6l37AuwP3JaMnZa226lzVXGA3F9Ig1seQen0cKYlM=
@@ -123,6 +129,8 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/pressly/goose/v3 v3.18.0 h1:CUQKjZ0li91GLrMekHPR0yz4UyjT21AqyhSm/ERcPTo=
 github.com/pressly/goose/v3 v3.18.0/go.mod h1:NTDry9taDJXEV6IqkABnZqm1MRGOSrCWrNEz1x6f4wI=
+github.com/pressly/goose/v3 v3.19.1 h1:ESO4QAltQChAY4zcenS8O1HKnyW9I0rKMxLwV7hpwGk=
+github.com/pressly/goose/v3 v3.19.1/go.mod h1:6OPM/AnUu6338xBlaX7R3veZ6F5iCobaGEEkoN7BTFc=
 github.com/prometheus/procfs v0.12.0 h1:jluTpSng7V9hY0O2R9DzzJHYb2xULk9VTR1V1R/k6Bo=
 github.com/prometheus/procfs v0.12.0/go.mod h1:pcuDEFsWDnvcgNzo4EEweacyhjeA9Zk3cnaOZAZEfOo=
 github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec h1:W09IVJc94icq4NjY3clb7Lk8O1qJ8BdBEF8z0ibU0rE=
