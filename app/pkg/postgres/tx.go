@@ -5,8 +5,29 @@ import (
 	errs "errors"
 	"fmt"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/pkg/errors"
 )
+
+type Tx interface {
+	Begin(ctx context.Context) (pgx.Tx, error)
+
+	Commit(ctx context.Context) error
+
+	Rollback(ctx context.Context) error
+
+	CopyFrom(ctx context.Context, tableName pgx.Identifier, columnNames []string, rowSrc pgx.CopyFromSource) (int64, error)
+	SendBatch(ctx context.Context, b *pgx.Batch) pgx.BatchResults
+	LargeObjects() pgx.LargeObjects
+
+	Prepare(ctx context.Context, name, sql string) (*pgconn.StatementDescription, error)
+
+	Exec(ctx context.Context, sql string, arguments ...any) (commandTag pgconn.CommandTag, err error)
+	Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error)
+	QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
+
+	Conn() *pgx.Conn
+}
 
 type txKey struct{}
 
@@ -71,12 +92,12 @@ func (t *txManager) ReadCommitted(ctx context.Context, handler Handler) error {
 	return t.tx(ctx, opts, handler)
 }
 
-func InjectTX(ctx context.Context, tx pgx.Tx) context.Context {
+func InjectTX(ctx context.Context, tx Tx) context.Context {
 	return context.WithValue(ctx, txKey{}, tx)
 }
 
-func ExtractTX(ctx context.Context) (pgx.Tx, bool) {
-	tx, ok := ctx.Value(txKey{}).(pgx.Tx)
+func ExtractTX(ctx context.Context) (Tx, bool) {
+	tx, ok := ctx.Value(txKey{}).(Tx)
 
 	return tx, ok
 }

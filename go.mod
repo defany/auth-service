@@ -7,7 +7,7 @@ require (
 	github.com/brianvoe/gofakeit v3.18.0+incompatible
 	github.com/fatih/color v1.16.0
 	github.com/ilyakaznacheev/cleanenv v1.5.0
-	github.com/jackc/pgx/v5 v5.5.3
+	github.com/jackc/pgx/v5 v5.5.2
 	github.com/pkg/errors v0.9.1
 	github.com/pressly/goose/v3 v3.18.0
 	github.com/stretchr/testify v1.8.4

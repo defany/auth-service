@@ -8,8 +8,6 @@ import (
 	"github.com/defany/auth-service/app/internal/repository"
 	mockrepository "github.com/defany/auth-service/app/internal/repository/mocks"
 	userservice "github.com/defany/auth-service/app/internal/service/user"
-	userv1 "github.com/defany/auth-service/app/pkg/gen/proto/user/v1"
-	"github.com/defany/auth-service/app/pkg/hash"
 	"github.com/defany/auth-service/app/pkg/logger/sl"
 	"github.com/defany/auth-service/app/pkg/postgres"
 	mockpostgres "github.com/defany/auth-service/app/pkg/postgres/mocks"
@@ -19,10 +17,10 @@ import (
 	"testing"
 )
 
-func TestService_SuccessUserCreate(t *testing.T) {
+func TestService_SuccessUserDelete(t *testing.T) {
 	type args struct {
 		ctx             context.Context
-		userCreateInput model.UserCreate
+		userDeleteInput uint64
 		logCreateInput  model.Log
 	}
 
@@ -35,22 +33,8 @@ func TestService_SuccessUserCreate(t *testing.T) {
 	var (
 		userID = gofakeit.Uint64()
 
-		name            = gofakeit.Name()
-		email           = gofakeit.Email()
-		password        = gofakeit.Password(false, true, true, false, false, 6)
-		passwordConfirm = hash.MD5(password)
-		role            = userv1.UserRole_name[int32(userv1.UserRole_ADMIN)]
-
-		userCreateInput = model.UserCreate{
-			Name:            name,
-			Email:           email,
-			Password:        password,
-			PasswordConfirm: passwordConfirm,
-			Role:            role,
-		}
-
 		logCreateInput = model.Log{
-			Action: model.LogCreateUser,
+			Action: model.LogDeleteUser,
 			UserID: userID,
 		}
 	)
@@ -58,19 +42,17 @@ func TestService_SuccessUserCreate(t *testing.T) {
 	tests := []struct {
 		name   string
 		args   args
-		want   uint64
-		err    error
+		want   error
 		mocker func(tt args) mocker
 	}{
 		{
 			name: "success",
 			args: args{
 				ctx:             context.Background(),
-				userCreateInput: userCreateInput,
+				userDeleteInput: userID,
 				logCreateInput:  logCreateInput,
 			},
-			want: userID,
-			err:  nil,
+			want: nil,
 			mocker: func(tt args) mocker {
 				txOpts := pgx.TxOptions{
 					IsoLevel: pgx.ReadCommitted,
@@ -89,7 +71,7 @@ func TestService_SuccessUserCreate(t *testing.T) {
 				userRepo := mockrepository.NewMockUserRepository(t)
 				logRepo := mockrepository.NewMockLogRepository(t)
 
-				userRepo.On("Create", txCtx, tt.userCreateInput).Return(userID, nil)
+				userRepo.On("Delete", txCtx, tt.userDeleteInput).Return(nil)
 
 				logRepo.On("Log", txCtx, tt.logCreateInput).Return(nil)
 
@@ -110,18 +92,17 @@ func TestService_SuccessUserCreate(t *testing.T) {
 
 			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log)
 
-			output, err := service.Create(tt.args.ctx, tt.args.userCreateInput)
+			err := service.Delete(tt.args.ctx, tt.args.userDeleteInput)
 
-			require.Equal(t, tt.err, err)
-			require.Equal(t, tt.want, output)
+			require.Equal(t, tt.want, err)
 		})
 	}
 }
 
-func TestService_FailUserCreateProcessTx(t *testing.T) {
+func TestService_FailUserDeleteProcessTx(t *testing.T) {
 	type args struct {
 		ctx             context.Context
-		userCreateInput model.UserCreate
+		userDeleteInput uint64
 		logCreateInput  model.Log
 	}
 
@@ -133,25 +114,23 @@ func TestService_FailUserCreateProcessTx(t *testing.T) {
 
 	var (
 		err   = errors.New("some error")
-		slErr = sl.Err("service.Create", err)
+		slErr = sl.Err("service.Delete", err)
 	)
 
 	tests := []struct {
 		name   string
 		args   args
-		want   uint64
-		err    error
+		want   error
 		mocker func(tt args) mocker
 	}{
 		{
 			name: "failed to start tx because ReadCommitted returned an error",
 			args: args{
 				ctx:             context.Background(),
-				userCreateInput: model.UserCreate{},
+				userDeleteInput: 0,
 				logCreateInput:  model.Log{},
 			},
-			want: uint64(0),
-			err:  slErr,
+			want: slErr,
 			mocker: func(tt args) mocker {
 				txManager := mockpostgres.NewMockTxManager(t)
 				txManager.On("ReadCommitted", tt.ctx, mock.AnythingOfType("postgres.Handler")).Return(err)
@@ -173,18 +152,17 @@ func TestService_FailUserCreateProcessTx(t *testing.T) {
 
 			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log)
 
-			output, err := service.Create(tt.args.ctx, tt.args.userCreateInput)
+			err := service.Delete(tt.args.ctx, tt.args.userDeleteInput)
 
-			require.Error(t, tt.err, err)
-			require.Equal(t, tt.want, output)
+			require.Equal(t, tt.want, err)
 		})
 	}
 }
 
-func TestService_FailUserCreate(t *testing.T) {
+func TestService_FailUserDelete(t *testing.T) {
 	type args struct {
 		ctx             context.Context
-		userCreateInput model.UserCreate
+		userDeleteInput uint64
 		logCreateInput  model.Log
 	}
 
@@ -197,45 +175,29 @@ func TestService_FailUserCreate(t *testing.T) {
 	var (
 		userID = gofakeit.Uint64()
 
-		name            = gofakeit.Name()
-		email           = gofakeit.Email()
-		password        = gofakeit.Password(false, true, true, false, false, 6)
-		passwordConfirm = hash.MD5(password)
-		role            = userv1.UserRole_name[int32(userv1.UserRole_ADMIN)]
-
-		userCreateInput = model.UserCreate{
-			Name:            name,
-			Email:           email,
-			Password:        password,
-			PasswordConfirm: passwordConfirm,
-			Role:            role,
-		}
+		err   = errors.New("some error")
+		slErr = sl.Err("service.Delete", err)
 
 		logCreateInput = model.Log{
 			Action: model.LogCreateUser,
 			UserID: userID,
 		}
-
-		err   = errors.New("some error")
-		slErr = sl.Err("service.Create", err)
 	)
 
 	tests := []struct {
 		name   string
 		args   args
-		want   uint64
-		err    error
+		want   error
 		mocker func(tt args) mocker
 	}{
 		{
 			name: "fail user create because user repository returned an error",
 			args: args{
 				ctx:             context.Background(),
-				userCreateInput: userCreateInput,
+				userDeleteInput: userID,
 				logCreateInput:  logCreateInput,
 			},
-			want: uint64(0),
-			err:  slErr,
+			want: slErr,
 			mocker: func(tt args) mocker {
 				txOpts := pgx.TxOptions{
 					IsoLevel: pgx.ReadCommitted,
@@ -253,7 +215,7 @@ func TestService_FailUserCreate(t *testing.T) {
 				txManager := postgres.NewTxManager(db)
 
 				user := mockrepository.NewMockUserRepository(t)
-				user.On("Create", txCtx, tt.userCreateInput).Return(uint64(0), err)
+				user.On("Delete", txCtx, tt.userDeleteInput).Return(err)
 
 				return mocker{
 					txManager: txManager,
@@ -272,18 +234,17 @@ func TestService_FailUserCreate(t *testing.T) {
 
 			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log)
 
-			output, err := service.Create(tt.args.ctx, tt.args.userCreateInput)
+			err := service.Delete(tt.args.ctx, tt.args.userDeleteInput)
 
-			require.Error(t, tt.err, err)
-			require.Equal(t, tt.want, output)
+			require.Equal(t, tt.want, err)
 		})
 	}
 }
 
-func TestService_FailUserCreateLog(t *testing.T) {
+func TestService_FailUserDeleteLog(t *testing.T) {
 	type args struct {
 		ctx             context.Context
-		userCreateInput model.UserCreate
+		userDeleteInput uint64
 		logCreateInput  model.Log
 	}
 
@@ -296,45 +257,29 @@ func TestService_FailUserCreateLog(t *testing.T) {
 	var (
 		userID = gofakeit.Uint64()
 
-		name            = gofakeit.Name()
-		email           = gofakeit.Email()
-		password        = gofakeit.Password(false, true, true, false, false, 6)
-		passwordConfirm = hash.MD5(password)
-		role            = userv1.UserRole_name[int32(userv1.UserRole_ADMIN)]
-
-		userCreateInput = model.UserCreate{
-			Name:            name,
-			Email:           email,
-			Password:        password,
-			PasswordConfirm: passwordConfirm,
-			Role:            role,
-		}
+		err   = errors.New("some error")
+		slErr = sl.Err("service.Delete", err)
 
 		logCreateInput = model.Log{
-			Action: model.LogCreateUser,
+			Action: model.LogDeleteUser,
 			UserID: userID,
 		}
-
-		err   = errors.New("some error")
-		slErr = sl.Err("service.Create", err)
 	)
 
 	tests := []struct {
 		name   string
 		args   args
-		want   uint64
-		err    error
+		want   error
 		mocker func(tt args) mocker
 	}{
 		{
 			name: "fail log create because log repository returned an error",
 			args: args{
 				ctx:             context.Background(),
-				userCreateInput: userCreateInput,
+				userDeleteInput: userID,
 				logCreateInput:  logCreateInput,
 			},
-			want: uint64(0),
-			err:  slErr,
+			want: slErr,
 			mocker: func(tt args) mocker {
 				txOpts := pgx.TxOptions{
 					IsoLevel: pgx.ReadCommitted,
@@ -352,7 +297,7 @@ func TestService_FailUserCreateLog(t *testing.T) {
 				txManager := postgres.NewTxManager(db)
 
 				user := mockrepository.NewMockUserRepository(t)
-				user.On("Create", txCtx, tt.userCreateInput).Return(userID, nil)
+				user.On("Delete", txCtx, tt.userDeleteInput).Return(nil)
 
 				log := mockrepository.NewMockLogRepository(t)
 				log.On("Log", txCtx, tt.logCreateInput).Return(err)
@@ -374,10 +319,9 @@ func TestService_FailUserCreateLog(t *testing.T) {
 
 			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log)
 
-			output, err := service.Create(tt.args.ctx, tt.args.userCreateInput)
+			err := service.Delete(tt.args.ctx, tt.args.userDeleteInput)
 
-			require.Error(t, tt.err, err)
-			require.Equal(t, tt.want, output)
+			require.Equal(t, tt.want, err)
 		})
 	}
 }

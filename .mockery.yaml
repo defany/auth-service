@@ -3,6 +3,7 @@ dir: "{{.InterfaceDir}}/mocks"
 mockname: "Mock{{.InterfaceName}}"
 outpkg: "mock{{.PackageName}}"
 filename: "{{.InterfaceName}}.go"
+include-auto-generated: false
 all: True
 packages:
   github.com/defany/auth-service:
@@ -13,3 +14,4 @@ packages:
   github.com/defany/auth-service/app/pkg/postgres:
     interfaces:
       TxManager:
+      Tx:
