@@ -13,7 +13,7 @@ type Postgres interface {
 	QueryRow(ctx context.Context, query string, args ...interface{}) pgx.Row
 	Exec(ctx context.Context, query string, args ...interface{}) (commandTag pgconn.CommandTag, err error)
 
-	BeginTx(ctx context.Context, txOptions pgx.TxOptions) (pgx.Tx, error)
+	BeginTx(ctx context.Context, txOptions pgx.TxOptions) (Tx, error)
 
 	Pool() *pgxpool.Pool
 
@@ -68,7 +68,7 @@ func (p *postgres) Exec(ctx context.Context, query string, args ...interface{}) 
 	return p.db.Exec(ctx, query, args...)
 }
 
-func (p *postgres) BeginTx(ctx context.Context, txOptions pgx.TxOptions) (pgx.Tx, error) {
+func (p *postgres) BeginTx(ctx context.Context, txOptions pgx.TxOptions) (Tx, error) {
 	return p.db.BeginTx(ctx, txOptions)
 }
 
