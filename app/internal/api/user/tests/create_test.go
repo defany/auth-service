@@ -9,7 +9,7 @@ import (
 	"github.com/defany/auth-service/app/internal/converter"
 	mockdefserv "github.com/defany/auth-service/app/internal/service/mocks"
 	userv1 "github.com/defany/auth-service/app/pkg/gen/proto/user/v1"
-	"github.com/defany/auth-service/app/pkg/logger/handlers/slogpretty"
+	"github.com/defany/slogger/pkg/logger/handlers/slogpretty"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
