@@ -17,7 +17,12 @@ type Metrics struct {
 }
 
 type Server struct {
-	Port int `json:"port" env:"SERVER_PORT" env-default:"50001"`
+	GRPC struct {
+		Addr string `json:"port" env:"SERVER_PORT" env-default:":50001"`
+	} `json:"grpc"`
+	HTTP struct {
+		Addr string `json:"port" env:"SERVER_PORT" env-default:":50101"`
+	} `json:"http"`
 }
 
 type Database struct {

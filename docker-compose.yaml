@@ -39,6 +39,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "50002:50001"
+      - "50003:50101"
     restart: unless-stopped
     # Не придумал как ожидать завершения мигратора
     depends_on:

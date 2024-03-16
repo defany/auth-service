@@ -6,9 +6,12 @@ import (
 	"os"
 	"os/signal"
 	"sync"
+	"syscall"
+
+	"golang.org/x/exp/slices"
 )
 
-var closer = New()
+var closer = New(os.Interrupt, syscall.SIGTERM)
 
 func Add(fns ...func() error) {
 	closer.Add(fns...)
@@ -32,6 +35,7 @@ func New(sig ...os.Signal) *Closer {
 	c := &Closer{
 		done: make(chan struct{}),
 	}
+
 	if len(sig) == 0 {
 		return c
 	}
@@ -69,20 +73,18 @@ func (c *Closer) Close() {
 		c.mu.Lock()
 		fns := c.fns
 
+		slices.Reverse(fns)
+
 		c.fns = nil
 		c.mu.Unlock()
 
 		var err error
 
 		for _, fn := range fns {
-			go func(fn func() error) {
-				if ferr := fn(); err != nil {
-					// Не очень элегантно, возможно. Но предостеречься от гонки стоит
-					c.mu.Lock()
-					defer c.mu.Unlock()
-					err = errors.Join(err, ferr)
-				}
-			}(fn)
+			// TODO: if close too long - kill
+			if ferr := fn(); err != nil {
+				err = errors.Join(err, ferr)
+			}
 		}
 
 		if err != nil {

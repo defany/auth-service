@@ -51,3 +51,8 @@ up:
 
 mockup:
 	docker run --rm -v "$(path)":/src -w /src vektra/mockery --all
+
+install:
+	go mod download
+
+	go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest

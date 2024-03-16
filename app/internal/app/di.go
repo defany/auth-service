@@ -2,6 +2,9 @@ package app
 
 import (
 	"context"
+	"log/slog"
+	"os"
+
 	"github.com/defany/auth-service/app/internal/api/user"
 	"github.com/defany/auth-service/app/internal/config"
 	"github.com/defany/auth-service/app/internal/repository"
@@ -12,8 +15,6 @@ import (
 	"github.com/defany/auth-service/app/pkg/closer"
 	"github.com/defany/db/pkg/postgres"
 	"github.com/defany/slogger/pkg/logger/sl"
-	"log/slog"
-	"os"
 )
 
 type DI struct {
@@ -82,6 +83,8 @@ func (d *DI) Database(ctx context.Context) postgres.Postgres {
 	}
 
 	closer.Add(func() error {
+		d.Log(ctx).Info("closing db connection pool")
+
 		db.Close()
 
 		return nil

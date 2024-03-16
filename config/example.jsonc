@@ -11,7 +11,12 @@
     "connect_attempts_delay": "" // in sec. default=5 sec
   },
   "server": {
-    "port": 50001 // default=50001
+    "grpc": {
+      "addr": ":50001" // default=50001
+    },
+    "http": {
+      "addr": ":50101" // default=50101
+    }
   },
   "logger": {
     "level": "debug", // default=debug
