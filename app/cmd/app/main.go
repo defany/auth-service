@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+
 	"github.com/defany/auth-service/app/internal/app"
 )
 

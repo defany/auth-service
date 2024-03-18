@@ -2,6 +2,7 @@ package userrepo
 
 import (
 	"context"
+
 	"github.com/Masterminds/squirrel"
 )
 

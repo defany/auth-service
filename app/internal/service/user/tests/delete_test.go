@@ -3,6 +3,8 @@ package usertests
 import (
 	"context"
 	"errors"
+	"testing"
+
 	"github.com/brianvoe/gofakeit"
 	"github.com/defany/auth-service/app/internal/model"
 	"github.com/defany/auth-service/app/internal/repository"
@@ -14,7 +16,6 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestService_SuccessUserDelete(t *testing.T) {

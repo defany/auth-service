@@ -2,6 +2,7 @@ package logrepo
 
 import (
 	"context"
+
 	"github.com/defany/auth-service/app/internal/model"
 )
 

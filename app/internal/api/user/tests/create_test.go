@@ -4,6 +4,9 @@ import (
 	"context"
 	"crypto/md5"
 	"encoding/hex"
+	"log/slog"
+	"testing"
+
 	"github.com/brianvoe/gofakeit"
 	"github.com/defany/auth-service/app/internal/api/user"
 	"github.com/defany/auth-service/app/internal/converter"
@@ -13,8 +16,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"log/slog"
-	"testing"
 )
 
 func TestImplementation_Create(t *testing.T) {
