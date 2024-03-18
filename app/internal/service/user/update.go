@@ -2,6 +2,7 @@ package userservice
 
 import (
 	"context"
+
 	"github.com/defany/auth-service/app/internal/model"
 	"github.com/defany/slogger/pkg/logger/sl"
 )

@@ -2,6 +2,9 @@ package usertests
 
 import (
 	"context"
+	"log/slog"
+	"testing"
+
 	"github.com/brianvoe/gofakeit"
 	"github.com/defany/auth-service/app/internal/api/user"
 	"github.com/defany/auth-service/app/internal/model"
@@ -12,8 +15,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"log/slog"
-	"testing"
 )
 
 func TestImplementation_Get(t *testing.T) {

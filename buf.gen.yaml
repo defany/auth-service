@@ -5,6 +5,7 @@ managed:
     default: github.com/defany/auth-service/proto/pkg/
     except:
       - buf.build/bufbuild/protovalidate
+      - buf.build/grpc-ecosystem/grpc-gateway
       - buf.build/googleapis/googleapis
 plugins:
   - plugin: buf.build/protocolbuffers/go
@@ -24,3 +25,8 @@ plugins:
     opt:
       - paths=source_relative
       - generate_unbound_methods=true
+
+  - plugin: openapiv2
+    out: app/pkg/gen/swagger
+    strategy: all
+    opt: allow_merge=true,merge_file_name=api

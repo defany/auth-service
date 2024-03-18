@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"log"
 	"log/slog"
 	"os"
 
@@ -12,8 +13,8 @@ import (
 	userrepo "github.com/defany/auth-service/app/internal/repository/user"
 	defserv "github.com/defany/auth-service/app/internal/service"
 	userservice "github.com/defany/auth-service/app/internal/service/user"
-	"github.com/defany/auth-service/app/pkg/closer"
 	"github.com/defany/db/pkg/postgres"
+	"github.com/defany/platcom/pkg/closer"
 	"github.com/defany/slogger/pkg/logger/sl"
 )
 
@@ -69,6 +70,8 @@ func (d *DI) Database(ctx context.Context) postgres.Postgres {
 	}
 
 	cfg := d.Config(ctx)
+
+	log.Println(cfg.Database)
 
 	dbConfig := postgres.NewConfig(cfg.Database.Username, cfg.Database.Password, cfg.Database.Host, cfg.Database.Port, cfg.Database.Database)
 

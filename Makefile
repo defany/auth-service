@@ -10,6 +10,14 @@ else
     path := $(shell pwd)
 endif
 
+gen:
+	make protogen
+
+	make apigen
+
+apigen:
+	statik -src=app/pkg/gen/swagger/ -dest=app/pkg/gen/gen-swagger -include='*.css,*.html,*.js,*.json,*.png'
+
 protogen:
 	buf generate proto
 
@@ -55,4 +63,6 @@ mockup:
 install:
 	go mod download
 
-	go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest
+	go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest \
+	github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@latest \
+	github.com/rakyll/statik

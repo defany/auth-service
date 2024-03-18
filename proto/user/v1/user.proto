@@ -2,32 +2,55 @@ syntax = 'proto3';
 
 package user.v1;
 
-option go_package = 'user_v1;user_v1';
+option go_package = 'user_v1';
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/empty.proto";
 import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "Auth API"
+    version: "1.0.0"
+    contact: {
+      name: "DeFaNy"
+      url: "t.me/defane"
+    }
+  }
+  host: "localhost:8000"
+  schemes: [
+    HTTP,
+    HTTPS
+  ]
+  consumes: "application/json"
+  produces: "application/json"
+};
 
 service UserService {
+  // Create new user
   rpc Create(CreateRequest) returns (CreateResponse) {
     option (google.api.http) = {
       post: "/users/v1",
       body: "*",
     };
   }
+  // Get user by id
   rpc Get(GetRequest) returns (GetResponse) {
     option (google.api.http) = {
       get: "/users/v1",
     };
   }
+  // Update user
   rpc Update(UpdateRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       patch: "/users/v1",
       body: "*",
     };
   }
+  // Delete user by id
   rpc Delete(DeleteRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete: "/users/v1"
@@ -81,10 +104,6 @@ message GetResponse {
   int64 id = 1;
   string name = 2;
   string email = 3;
-  /*
-    Считаю, что нам не нужно в GetResponse слать пароль юзера, даже зашифрованный
-    Поэтому описал только те поля, которые будем возвращать
-  */
   UserRole role = 4;
   google.protobuf.Timestamp created_at = 5;
   google.protobuf.Timestamp updated_at = 6;
@@ -94,7 +113,7 @@ message UpdateRequest {
   int64 id = 1;
   optional string name = 2;
   optional string email = 3;
-  optional UserRole role = 4; /* optional, т.к. роль тоже не всегда нужно обновлять */
+  optional UserRole role = 4;
 }
 
 message DeleteRequest {

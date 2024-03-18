@@ -2,8 +2,8 @@ package converter
 
 import (
 	"github.com/defany/auth-service/app/internal/model"
-	"github.com/defany/auth-service/app/pkg/cond"
 	userv1 "github.com/defany/auth-service/app/pkg/gen/proto/user/v1"
+	"github.com/defany/platcom/pkg/cond"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 

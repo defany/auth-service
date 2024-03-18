@@ -2,12 +2,13 @@ package user
 
 import (
 	"context"
+	"log/slog"
+
 	"github.com/defany/auth-service/app/internal/converter"
 	userv1 "github.com/defany/auth-service/app/pkg/gen/proto/user/v1"
 	"github.com/defany/slogger/pkg/logger/sl"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"log/slog"
 )
 
 func (i *Implementation) Create(ctx context.Context, req *userv1.CreateRequest) (*userv1.CreateResponse, error) {

@@ -3,7 +3,7 @@ lint:
   except:
     - service_suffix
   use:
-    - MINIMAL
+    - BASIC
   allow_comment_ignores: true
 deps:
   - buf.build/googleapis/googleapis

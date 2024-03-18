@@ -2,6 +2,7 @@ package userrepo
 
 import (
 	"context"
+
 	"github.com/Masterminds/squirrel"
 	"github.com/defany/auth-service/app/internal/model"
 	"github.com/defany/auth-service/app/internal/repository/user/converter"
