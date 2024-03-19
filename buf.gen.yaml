@@ -5,13 +5,13 @@ managed:
     default: github.com/bufbuild/buf-tour/gen
 plugins:
   - plugin: buf.build/protocolbuffers/go
-    out: app/pkg/gen
+    out: app/pkg/gen/proto
     opt: paths=source_relative
 
   - plugin: buf.build/bufbuild/validate-go
-    out: app/pkg/gen
+    out: app/pkg/gen/proto
     opt: paths=source_relative
 
   - plugin: buf.build/grpc/go
-    out: app/pkg/gen
+    out: app/pkg/gen/proto
     opt: paths=source_relative

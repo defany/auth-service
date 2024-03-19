@@ -3,7 +3,7 @@ package converter
 import (
 	"github.com/defany/auth-service/app/internal/model"
 	"github.com/defany/auth-service/app/pkg/cond"
-	userv1 "github.com/defany/auth-service/app/pkg/gen/user/v1"
+	userv1 "github.com/defany/auth-service/app/pkg/gen/proto/user/v1"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 

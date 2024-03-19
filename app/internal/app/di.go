@@ -2,6 +2,9 @@ package app
 
 import (
 	"context"
+	"log/slog"
+	"os"
+
 	"github.com/defany/auth-service/app/internal/api/user"
 	"github.com/defany/auth-service/app/internal/config"
 	"github.com/defany/auth-service/app/internal/repository"
@@ -10,10 +13,8 @@ import (
 	defserv "github.com/defany/auth-service/app/internal/service"
 	userservice "github.com/defany/auth-service/app/internal/service/user"
 	"github.com/defany/auth-service/app/pkg/closer"
-	"github.com/defany/auth-service/app/pkg/logger/sl"
-	"github.com/defany/auth-service/app/pkg/postgres"
-	"log/slog"
-	"os"
+	"github.com/defany/db/pkg/postgres"
+	"github.com/defany/slogger/pkg/logger/sl"
 )
 
 type DI struct {

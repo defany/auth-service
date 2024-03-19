@@ -2,8 +2,9 @@ package userservice
 
 import (
 	"context"
+
 	"github.com/defany/auth-service/app/internal/model"
-	"github.com/defany/auth-service/app/pkg/logger/sl"
+	"github.com/defany/slogger/pkg/logger/sl"
 )
 
 func (s *service) Update(ctx context.Context, user model.UserUpdate) error {

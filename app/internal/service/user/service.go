@@ -3,7 +3,7 @@ package userservice
 import (
 	"github.com/defany/auth-service/app/internal/repository"
 	defserv "github.com/defany/auth-service/app/internal/service"
-	"github.com/defany/auth-service/app/pkg/postgres"
+	"github.com/defany/db/pkg/postgres"
 )
 
 type service struct {

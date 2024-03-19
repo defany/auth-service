@@ -39,7 +39,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "50002:50001"
-    restart: on-failure
+    restart: unless-stopped
     # Не придумал как ожидать завершения мигратора
     depends_on:
       postgres:

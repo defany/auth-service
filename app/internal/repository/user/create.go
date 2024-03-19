@@ -3,6 +3,7 @@ package userrepo
 import (
 	"context"
 	"fmt"
+
 	"github.com/defany/auth-service/app/internal/model"
 	"github.com/jackc/pgx/v5"
 )
