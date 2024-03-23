@@ -10,6 +10,14 @@ else
     path := $(shell pwd)
 endif
 
+gen:
+	make protogen
+
+	make apigen
+
+apigen:
+	statik -src=app/pkg/gen/swagger/ -dest=app/pkg/gen/gen-swagger -include='*.css,*.html,*.js,*.json,*.png'
+
 protogen:
 	buf generate proto
 
@@ -51,3 +59,10 @@ up:
 
 mockup:
 	docker run --rm -v "$(path)":/src -w /src vektra/mockery --all
+
+install:
+	go mod download
+
+	go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest \
+	github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@latest \
+	github.com/rakyll/statik

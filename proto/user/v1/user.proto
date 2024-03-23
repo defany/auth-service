@@ -2,33 +2,80 @@ syntax = 'proto3';
 
 package user.v1;
 
-option go_package = 'github.com/defany/user-service/proto/pkg/auth_v1;auth_v1';
+option go_package = 'user_v1';
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/empty.proto";
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "Auth API"
+    version: "1.0.0"
+    contact: {
+      name: "DeFaNy"
+      url: "t.me/defane"
+    }
+  }
+  host: "localhost:8000"
+  schemes: [
+    HTTP,
+    HTTPS
+  ]
+  consumes: "application/json"
+  produces: "application/json"
+};
 
 service UserService {
-  rpc Create(CreateRequest) returns (CreateResponse);
-  rpc Get(GetRequest) returns (GetResponse);
-  rpc GetUsers(GetUsersRequest) returns (GetUsersResponse);
-  /* https://buf.build/docs/lint/rules#rpc_request_response */
-  // buf:lint:ignore RPC_SAME_RESPONSE_TYPE
-  rpc Update(UpdateRequest) returns (google.protobuf.Empty);
-  /* https://buf.build/docs/lint/rules#rpc_request_response */
-  // buf:lint:ignore RPC_SAME_RESPONSE_TYPE
-  rpc Delete(DeleteRequest) returns (google.protobuf.Empty);
+  // Create new user
+  rpc Create(CreateRequest) returns (CreateResponse) {
+    option (google.api.http) = {
+      post: "/users/v1",
+      body: "*",
+    };
+  }
+  // Get user by id
+  rpc Get(GetRequest) returns (GetResponse) {
+    option (google.api.http) = {
+      get: "/users/v1",
+    };
+  }
+  // Update user
+  rpc Update(UpdateRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      patch: "/users/v1",
+      body: "*",
+    };
+  }
+  // Delete user by id
+  rpc Delete(DeleteRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/users/v1"
+    };
+  }
 }
 
+// Добавил лишь для одного роута, так как не вижу смысла использовать прото валидацию, так как у нас будет бизнес валидация, где:
+// 1) Все эти же пункты можно будет валидировать в зависимости от потребностей бизнеса
+// 2) Не привязываемся к протоколу
 message User {
-  int64 id = 1;
-  string name = 2;
-  string email = 3;
-  string password = 4;
+  int64 id = 1 [(buf.validate.field).uint64.gt = 0];
+  string name = 2 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 10];
+  string email = 3 [(buf.validate.field).string.email = true];
+  string password = 4 [(buf.validate.field).string.min_len = 6];
   string password_confirm = 5;
   UserRole role = 6;
   google.protobuf.Timestamp created_at = 7;
   google.protobuf.Timestamp updated_at = 8;
+
+  option (buf.validate.message).cel = {
+    id: "user_created_at_must_be_bigger_updated_at",
+    message: "a must be greater than b",
+    expression: "this.created_at < this.updated_at"
+  };
 }
 
 enum UserRole {
@@ -57,28 +104,16 @@ message GetResponse {
   int64 id = 1;
   string name = 2;
   string email = 3;
-  /*
-    Считаю, что нам не нужно в GetResponse слать пароль юзера, даже зашифрованный
-    Поэтому описал только те поля, которые будем возвращать
-  */
   UserRole role = 4;
   google.protobuf.Timestamp created_at = 5;
   google.protobuf.Timestamp updated_at = 6;
-}
-
-message GetUsersRequest {
-  repeated string nicknames = 1;
-}
-
-message GetUsersResponse {
-  repeated User users = 1;
 }
 
 message UpdateRequest {
   int64 id = 1;
   optional string name = 2;
   optional string email = 3;
-  optional UserRole role = 4; /* optional, т.к. роль тоже не всегда нужно обновлять */
+  optional UserRole role = 4;
 }
 
 message DeleteRequest {

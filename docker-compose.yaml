@@ -33,12 +33,14 @@ services:
 
   server:
     environment:
-      CONFIG_PATH: ./local.json
+      CONFIG_PATH: ./compose.json
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "50002:50001"
+      - "7000:7000"
+      - "8000:8000"
+      - "9000:9000"
     restart: unless-stopped
     # Не придумал как ожидать завершения мигратора
     depends_on:

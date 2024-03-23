@@ -2,7 +2,6 @@ package config
 
 import (
 	"errors"
-	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -12,12 +11,20 @@ import (
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
+const (
+	EnvLocal = "local"
+	EnvProd  = "prod"
+	EnvDev   = "Dev"
+)
+
 type Metrics struct {
 	ServiceName string `json:"service_name" env-default:"auth_service"`
 }
 
 type Server struct {
-	Port int `json:"port" env:"SERVER_PORT" env-default:"50001"`
+	GRPC    GRPC    `json:"grpc"`
+	HTTP    HTTP    `json:"http"`
+	Swagger Swagger `json:"swagger"`
 }
 
 type Database struct {
@@ -65,12 +72,13 @@ func MustLoad() *Config {
 }
 
 func configPath() string {
-	confPath := flag.String("config", "", "sets the config path for application")
-	if confPath != nil {
-		if *confPath != "" {
-			return *confPath
-		}
-	}
+	// TODO: почему-то конфликтует со statik, видимо flag - глобальная тема и ее надо заменить, иначе ошибка redefined
+	//confPath := flag.String("config", "", "sets the config path for application")
+	//if confPath != nil {
+	//	if *confPath != "" {
+	//		return *confPath
+	//	}
+	//}
 
 	envConfPath := os.Getenv("CONFIG_PATH")
 

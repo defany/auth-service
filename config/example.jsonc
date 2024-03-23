@@ -11,7 +11,18 @@
     "connect_attempts_delay": "" // in sec. default=5 sec
   },
   "server": {
-    "port": 50001 // default=50001
+    "grpc": {
+      "host":  "0.0.0.0",
+      "port": "7000"
+    },
+    "http": {
+      "host":  "0.0.0.0",
+      "port": "8000"
+    },
+    "swagger": {
+      "host":  "0.0.0.0",
+      "port": "9000"
+    }
   },
   "logger": {
     "level": "debug", // default=debug

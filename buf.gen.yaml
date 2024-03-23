@@ -2,7 +2,11 @@ version: v1
 managed:
   enabled: true
   go_package_prefix:
-    default: github.com/bufbuild/buf-tour/gen
+    default: github.com/defany/auth-service/proto/pkg/
+    except:
+      - buf.build/bufbuild/protovalidate
+      - buf.build/grpc-ecosystem/grpc-gateway
+      - buf.build/googleapis/googleapis
 plugins:
   - plugin: buf.build/protocolbuffers/go
     out: app/pkg/gen/proto
@@ -15,3 +19,14 @@ plugins:
   - plugin: buf.build/grpc/go
     out: app/pkg/gen/proto
     opt: paths=source_relative
+
+  - plugin: grpc-gateway
+    out: app/pkg/gen/proto
+    opt:
+      - paths=source_relative
+      - generate_unbound_methods=true
+
+  - plugin: openapiv2
+    out: app/pkg/gen/swagger
+    strategy: all
+    opt: allow_merge=true,merge_file_name=api
