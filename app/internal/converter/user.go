@@ -2,6 +2,7 @@ package converter
 
 import (
 	"github.com/defany/auth-service/app/internal/model"
+	authv1 "github.com/defany/auth-service/app/pkg/gen/proto/auth/v1"
 	userv1 "github.com/defany/auth-service/app/pkg/gen/proto/user/v1"
 	"github.com/defany/platcom/pkg/cond"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -43,4 +44,17 @@ func ToUserUpdate(input *userv1.UpdateRequest) model.UserUpdate {
 
 func ToUserProtoRole(role string) userv1.UserRole {
 	return userv1.UserRole(userv1.UserRole_value[role])
+}
+
+func ToUserLogin(input *authv1.LoginRequest) model.UserLoginInput {
+	return model.UserLoginInput{
+		Nickname: input.GetUsername(),
+		Password: input.GetPassword(),
+	}
+}
+
+func FromUserLogin(input model.UserLoginOutput) *authv1.LoginResponse {
+	return &authv1.LoginResponse{
+		RefreshToken: input.RefreshToken,
+	}
 }

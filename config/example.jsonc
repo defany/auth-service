@@ -10,6 +10,12 @@
     "connect_attempts":  "", // default=3
     "connect_attempts_delay": "" // in sec. default=5 sec
   },
+  "jwt": {
+    "refresh_secret_key": "dadaasddasasdffaijhfaisolhjasdolhvdiu.zdhuifhais",
+    "access_secret_key": "fgashuikofhvx,jkfnjashdisahdasioadjio;s=",
+    "refresh_token_expiration":  3600,
+    "access_token_expiration": 60
+  },
   "server": {
     "grpc": {
       "host":  "0.0.0.0",

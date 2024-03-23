@@ -7,11 +7,13 @@ import (
 )
 
 const (
-	table = "users"
+	table                     = "users"
+	tableEndpointsPermissions = "roles_endpoints_permissions"
 )
 
 const (
-	idColumn              = "id"
+	idColumn = "id"
+	// TODO: зарефакторить на nickname
 	nameColumn            = "name"
 	emailColumn           = "email"
 	passwordColumn        = "password"

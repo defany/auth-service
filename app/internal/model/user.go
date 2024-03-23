@@ -2,6 +2,8 @@ package model
 
 import (
 	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type User struct {
@@ -28,4 +30,19 @@ type UserUpdate struct {
 	Name  *string
 	Email *string
 	Role  *string
+}
+
+type UserLoginInput struct {
+	Nickname string
+	Password string
+}
+
+type UserLoginOutput struct {
+	RefreshToken string
+}
+
+type UserClaims struct {
+	jwt.RegisteredClaims
+	Username string `json:"username"`
+	Role     string `json:"role"`
 }
