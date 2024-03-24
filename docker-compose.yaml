@@ -28,7 +28,7 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      CONFIG_PATH: ./local.json
+      CONFIG_PATH: ./compose.json
       DB_HOST: postgres
 
   server:

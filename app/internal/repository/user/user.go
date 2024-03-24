@@ -63,7 +63,7 @@ func (r *repository) UserByNickname(ctx context.Context, nickname string) (model
 }
 
 func (r *repository) DoesHaveAccess(ctx context.Context, userRole string, endpoint string) error {
-	q := fmt.Sprintf("select exists(select endpoint from %s where role = ? and endpoint = ?)", tableEndpointsPermissions)
+	q := fmt.Sprintf("select exists(select endpoint from %s where role = $1 and endpoint = $2)", tableEndpointsPermissions)
 
 	rows, err := r.db.Query(ctx, q, userRole, endpoint)
 	if err != nil {

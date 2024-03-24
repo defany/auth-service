@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"log"
 	"time"
 
 	"github.com/defany/auth-service/app/internal/model"
@@ -35,6 +36,7 @@ func VerifyToken(tokenStr string, secretKey []byte) (*model.UserClaims, error) {
 			return secretKey, nil
 		},
 	)
+	log.Println(tokenStr, token)
 	if err != nil || !token.Valid {
 		return nil, errors.Errorf("invalid token: %s", err.Error())
 	}

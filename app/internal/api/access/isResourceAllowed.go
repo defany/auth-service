@@ -12,7 +12,7 @@ import (
 
 const (
 	// TODO: вынести в другое место, если понадобится
-	authPrefix = "Bearer"
+	authPrefix = "Bearer "
 )
 
 func (i *Implementation) Check(ctx context.Context, req *accessv1.CheckRequest) (*emptypb.Empty, error) {
