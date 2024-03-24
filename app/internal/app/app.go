@@ -104,9 +104,14 @@ func (a *App) runGRPCServer(ctx context.Context) error {
 }
 
 func (a *App) setupGRPCServer(ctx context.Context) {
+	itcp := interceptor.NewInterceptor()
+
+	itcp.WithGRPCValidate()
+	itcp.WithRequestsCounter(nil)
+
 	a.grpcServer = grpc.NewServer(
 		grpc.Creds(insecure.NewCredentials()),
-		grpc.UnaryInterceptor(interceptor.GRPCValidate),
+		grpc.UnaryInterceptor(itcp.Interceptor()),
 	)
 
 	reflection.Register(a.grpcServer)
