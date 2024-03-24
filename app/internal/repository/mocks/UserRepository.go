@@ -126,6 +126,54 @@ func (_c *MockUserRepository_Delete_Call) RunAndReturn(run func(context.Context,
 	return _c
 }
 
+// DoesHaveAccess provides a mock function with given fields: ctx, userRole, endpoint
+func (_m *MockUserRepository) DoesHaveAccess(ctx context.Context, userRole string, endpoint string) error {
+	ret := _m.Called(ctx, userRole, endpoint)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DoesHaveAccess")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) error); ok {
+		r0 = rf(ctx, userRole, endpoint)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockUserRepository_DoesHaveAccess_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DoesHaveAccess'
+type MockUserRepository_DoesHaveAccess_Call struct {
+	*mock.Call
+}
+
+// DoesHaveAccess is a helper method to define mock.On call
+//   - ctx context.Context
+//   - userRole string
+//   - endpoint string
+func (_e *MockUserRepository_Expecter) DoesHaveAccess(ctx interface{}, userRole interface{}, endpoint interface{}) *MockUserRepository_DoesHaveAccess_Call {
+	return &MockUserRepository_DoesHaveAccess_Call{Call: _e.mock.On("DoesHaveAccess", ctx, userRole, endpoint)}
+}
+
+func (_c *MockUserRepository_DoesHaveAccess_Call) Run(run func(ctx context.Context, userRole string, endpoint string)) *MockUserRepository_DoesHaveAccess_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(string))
+	})
+	return _c
+}
+
+func (_c *MockUserRepository_DoesHaveAccess_Call) Return(_a0 error) *MockUserRepository_DoesHaveAccess_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockUserRepository_DoesHaveAccess_Call) RunAndReturn(run func(context.Context, string, string) error) *MockUserRepository_DoesHaveAccess_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Update provides a mock function with given fields: ctx, user
 func (_m *MockUserRepository) Update(ctx context.Context, user model.UserUpdate) error {
 	ret := _m.Called(ctx, user)
@@ -226,6 +274,63 @@ func (_c *MockUserRepository_User_Call) Return(_a0 model.User, _a1 error) *MockU
 }
 
 func (_c *MockUserRepository_User_Call) RunAndReturn(run func(context.Context, uint64) (model.User, error)) *MockUserRepository_User_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UserByNickname provides a mock function with given fields: ctx, nickname
+func (_m *MockUserRepository) UserByNickname(ctx context.Context, nickname string) (model.User, error) {
+	ret := _m.Called(ctx, nickname)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UserByNickname")
+	}
+
+	var r0 model.User
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (model.User, error)); ok {
+		return rf(ctx, nickname)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) model.User); ok {
+		r0 = rf(ctx, nickname)
+	} else {
+		r0 = ret.Get(0).(model.User)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, nickname)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockUserRepository_UserByNickname_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UserByNickname'
+type MockUserRepository_UserByNickname_Call struct {
+	*mock.Call
+}
+
+// UserByNickname is a helper method to define mock.On call
+//   - ctx context.Context
+//   - nickname string
+func (_e *MockUserRepository_Expecter) UserByNickname(ctx interface{}, nickname interface{}) *MockUserRepository_UserByNickname_Call {
+	return &MockUserRepository_UserByNickname_Call{Call: _e.mock.On("UserByNickname", ctx, nickname)}
+}
+
+func (_c *MockUserRepository_UserByNickname_Call) Run(run func(ctx context.Context, nickname string)) *MockUserRepository_UserByNickname_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *MockUserRepository_UserByNickname_Call) Return(_a0 model.User, _a1 error) *MockUserRepository_UserByNickname_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockUserRepository_UserByNickname_Call) RunAndReturn(run func(context.Context, string) (model.User, error)) *MockUserRepository_UserByNickname_Call {
 	_c.Call.Return(run)
 	return _c
 }
