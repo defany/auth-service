@@ -4,6 +4,22 @@ volumes:
   postgres_volume:
 
 services:
+  prometheus:
+    image: prom/prometheus:v2.37.9
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./alerts.yml:/ets/prometheus/alerts.yml
+      - prometheus_data:/prometheus
+
+  grafana:
+    image: grafana:/grafana-oss:10.0.3
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+
   postgres:
     image: postgres:16.1-alpine3.19
     environment:
