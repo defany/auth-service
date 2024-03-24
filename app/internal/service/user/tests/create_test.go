@@ -11,9 +11,9 @@ import (
 	mockrepository "github.com/defany/auth-service/app/internal/repository/mocks"
 	userservice "github.com/defany/auth-service/app/internal/service/user"
 	userv1 "github.com/defany/auth-service/app/pkg/gen/proto/user/v1"
+	"github.com/defany/auth-service/app/pkg/hasher"
 	"github.com/defany/db/pkg/postgres"
 	mockpostgres "github.com/defany/db/pkg/postgres/mocks"
-	"github.com/defany/platcom/pkg/hash"
 	"github.com/defany/slogger/pkg/logger/sl"
 	"github.com/jackc/pgx/v5"
 	"github.com/stretchr/testify/mock"
@@ -39,7 +39,7 @@ func TestService_SuccessUserCreate(t *testing.T) {
 		name            = gofakeit.Name()
 		email           = gofakeit.Email()
 		password        = gofakeit.Password(false, true, true, false, false, 6)
-		passwordConfirm = hash.MD5(password)
+		passwordConfirm = password
 		role            = userv1.UserRole_name[int32(userv1.UserRole_ADMIN)]
 
 		userCreateInput = model.UserCreate{
@@ -109,7 +109,7 @@ func TestService_SuccessUserCreate(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mocker := tt.mocker(tt.args)
 
-			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log)
+			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log, hasher.NewPasswordMock(tt.args.userCreateInput.Password))
 
 			output, err := service.Create(tt.args.ctx, tt.args.userCreateInput)
 
@@ -172,7 +172,7 @@ func TestService_FailUserCreateProcessTx(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mocker := tt.mocker(tt.args)
 
-			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log)
+			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log, hasher.NewPasswordMock(tt.args.userCreateInput.Password))
 
 			output, err := service.Create(tt.args.ctx, tt.args.userCreateInput)
 
@@ -201,7 +201,7 @@ func TestService_FailUserCreate(t *testing.T) {
 		name            = gofakeit.Name()
 		email           = gofakeit.Email()
 		password        = gofakeit.Password(false, true, true, false, false, 6)
-		passwordConfirm = hash.MD5(password)
+		passwordConfirm = password
 		role            = userv1.UserRole_name[int32(userv1.UserRole_ADMIN)]
 
 		userCreateInput = model.UserCreate{
@@ -271,7 +271,7 @@ func TestService_FailUserCreate(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mocker := tt.mocker(tt.args)
 
-			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log)
+			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log, hasher.NewPasswordMock(tt.args.userCreateInput.Password))
 
 			output, err := service.Create(tt.args.ctx, tt.args.userCreateInput)
 
@@ -300,7 +300,7 @@ func TestService_FailUserCreateLog(t *testing.T) {
 		name            = gofakeit.Name()
 		email           = gofakeit.Email()
 		password        = gofakeit.Password(false, true, true, false, false, 6)
-		passwordConfirm = hash.MD5(password)
+		passwordConfirm = password
 		role            = userv1.UserRole_name[int32(userv1.UserRole_ADMIN)]
 
 		userCreateInput = model.UserCreate{
@@ -373,7 +373,7 @@ func TestService_FailUserCreateLog(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mocker := tt.mocker(tt.args)
 
-			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log)
+			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log, hasher.NewPasswordMock(tt.args.userCreateInput.Password))
 
 			output, err := service.Create(tt.args.ctx, tt.args.userCreateInput)
 

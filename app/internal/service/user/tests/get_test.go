@@ -11,6 +11,7 @@ import (
 	mockrepository "github.com/defany/auth-service/app/internal/repository/mocks"
 	userservice "github.com/defany/auth-service/app/internal/service/user"
 	userv1 "github.com/defany/auth-service/app/pkg/gen/proto/user/v1"
+	"github.com/defany/auth-service/app/pkg/hasher"
 	"github.com/defany/db/pkg/postgres"
 	mockpostgres "github.com/defany/db/pkg/postgres/mocks"
 	"github.com/defany/platcom/pkg/hash"
@@ -117,7 +118,7 @@ func TestService_SuccessUserGet(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mocker := tt.mocker(tt.args)
 
-			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log)
+			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log, hasher.NewPassword())
 
 			output, err := service.Get(tt.args.ctx, tt.args.userGetInput)
 
@@ -184,7 +185,7 @@ func TestService_FailUserGetProcessTx(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mocker := tt.mocker(tt.args)
 
-			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log)
+			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log, hasher.NewPassword())
 
 			output, err := service.Get(tt.args.ctx, tt.args.userGetInput)
 
@@ -275,7 +276,7 @@ func TestService_FailUserGet(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mocker := tt.mocker(tt.args)
 
-			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log)
+			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log, hasher.NewPassword())
 
 			output, err := service.Get(tt.args.ctx, tt.args.userGetInput)
 
@@ -369,7 +370,7 @@ func TestService_FailUserGetLog(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mocker := tt.mocker(tt.args)
 
-			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log)
+			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log, hasher.NewPassword())
 
 			output, err := service.Get(tt.args.ctx, tt.args.userGetInput)
 
