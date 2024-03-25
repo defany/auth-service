@@ -22,9 +22,10 @@ type Metrics struct {
 }
 
 type Server struct {
-	GRPC    GRPC    `json:"grpc"`
-	HTTP    HTTP    `json:"http"`
-	Swagger Swagger `json:"swagger"`
+	GRPC       GRPC       `json:"grpc"`
+	HTTP       HTTP       `json:"http"`
+	Swagger    Swagger    `json:"swagger"`
+	Prometheus Prometheus `json:"prometheus"`
 }
 
 type Database struct {

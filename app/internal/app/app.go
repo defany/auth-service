@@ -10,8 +10,10 @@ import (
 	"github.com/defany/auth-service/app/internal/config"
 	accessv1 "github.com/defany/auth-service/app/pkg/gen/proto/access/v1"
 	authv1 "github.com/defany/auth-service/app/pkg/gen/proto/auth/v1"
+	"github.com/defany/auth-service/app/pkg/metrics"
 	"github.com/defany/platcom/pkg/closer"
 	"github.com/defany/platcom/pkg/swagger"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rakyll/statik/fs"
 	"github.com/rs/cors"
 	"golang.org/x/sync/errgroup"
@@ -26,10 +28,11 @@ import (
 )
 
 type App struct {
-	di            *DI
-	grpcServer    *grpc.Server
-	httpServer    *http.Server
-	swaggerServer *http.Server
+	di               *DI
+	grpcServer       *grpc.Server
+	httpServer       *http.Server
+	swaggerServer    *http.Server
+	prometheusServer *http.Server
 }
 
 func NewApp() *App {
@@ -57,6 +60,10 @@ func (a *App) Run(ctx context.Context) error {
 
 	wg.Go(func() error {
 		return a.runGRPCServer(ctx)
+	})
+
+	wg.Go(func() error {
+		return a.runPrometheusServer(ctx)
 	})
 
 	return wg.Wait()
@@ -104,14 +111,13 @@ func (a *App) runGRPCServer(ctx context.Context) error {
 }
 
 func (a *App) setupGRPCServer(ctx context.Context) {
-	itcp := interceptor.NewInterceptor()
-
-	itcp.WithGRPCValidate()
-	itcp.WithRequestsCounter(nil)
+	metric := metrics.NewMetrics("auth_service")
+	metric.WithRequestCounter("grpc")
+	metric.WithResponseCounter("grpc")
 
 	a.grpcServer = grpc.NewServer(
 		grpc.Creds(insecure.NewCredentials()),
-		grpc.UnaryInterceptor(itcp.Interceptor()),
+		grpc.UnaryInterceptor(interceptor.Interceptor(metric)),
 	)
 
 	reflection.Register(a.grpcServer)
@@ -223,8 +229,6 @@ func (a *App) setupSwaggerHTTPServer(ctx context.Context) error {
 		return err
 	}
 
-	a.DI().Log(ctx).Debug("setup muxer for swagger")
-
 	mux := http.NewServeMux()
 	mux.Handle("/", http.StripPrefix("/", http.FileServer(sfs)))
 	mux.HandleFunc("/api.swagger.json", serve.Middleware())
@@ -232,6 +236,35 @@ func (a *App) setupSwaggerHTTPServer(ctx context.Context) error {
 	a.swaggerServer = &http.Server{
 		Addr:    a.DI().Config(ctx).Server.Swagger.Addr(),
 		Handler: mux,
+	}
+
+	return nil
+}
+
+func (a *App) runPrometheusServer(ctx context.Context) error {
+	mux := http.NewServeMux()
+	mux.Handle("/metrics", promhttp.Handler())
+
+	a.prometheusServer = &http.Server{
+		Addr:    a.DI().Config(ctx).Server.Prometheus.Addr(),
+		Handler: mux,
+	}
+
+	closer.Add(func() error {
+		a.DI().Log(ctx).Info("closing prometheus http server")
+
+		return a.prometheusServer.Shutdown(ctx)
+	})
+
+	a.DI().Log(ctx).Info("go prometheus!", slog.String("addr", a.DI().Config(ctx).Server.Prometheus.Addr()))
+
+	err := a.prometheusServer.ListenAndServe()
+	if err != nil {
+		if errors.Is(err, http.ErrServerClosed) {
+			return nil
+		}
+
+		return err
 	}
 
 	return nil

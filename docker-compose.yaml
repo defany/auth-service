@@ -2,19 +2,25 @@ version: '3'
 
 volumes:
   postgres_volume:
+  prometheus_data:
+  grafana_data:
 
 services:
   prometheus:
-    image: prom/prometheus:v2.37.9
+    image: prom/prometheus
+    volumes:
+      - "./prometheus.yml:/etc/prometheus/prometheus.yml"
+      - "./rules.yml:/etc/prometheus/rules.yml"
+      - prometheus_data:/prometheus
     ports:
       - "9090:9090"
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-      - ./alerts.yml:/ets/prometheus/alerts.yml
-      - prometheus_data:/prometheus
+  node-exporter:
+    image: prom/node-exporter
+    ports:
+      - "9100:9100"
 
   grafana:
-    image: grafana:/grafana-oss:10.0.3
+    image: grafana/grafana-oss:10.0.3
     ports:
       - "3000:3000"
     volumes:
@@ -44,7 +50,7 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      CONFIG_PATH: ./local.json
+      CONFIG_PATH: ./compose.json
       DB_HOST: postgres
 
   server:
@@ -57,6 +63,7 @@ services:
       - "7000:7000"
       - "8000:8000"
       - "9000:9000"
+      - "10000:10000"
     # Не придумал как ожидать завершения мигратора
     depends_on:
       postgres:

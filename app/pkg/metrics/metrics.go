@@ -8,23 +8,26 @@ import (
 )
 
 const (
-	RequestCounterName = "requests_total"
+	RequestCounterName  = "requests_total"
+	ResponseCounterName = "responses_total"
 )
 
 var (
 	ErrRequestCounterIsNotDefined = errors.New("request counter is not defined. Maybe you forgot to define it")
+	ErrInvalidRequestCounterType  = errors.New("failed to cast counter to prometheus.Counter")
+	ErrInvalidResponseCounterType = errors.New("failed to cast counter to prometheus.CounterVec")
 )
 
 type Metrics struct {
 	appName string
 
-	counters map[string]prometheus.Counter
+	counters map[string]any
 }
 
 func NewMetrics(appName string) *Metrics {
 	return &Metrics{
 		appName:  appName,
-		counters: make(map[string]prometheus.Counter),
+		counters: make(map[string]any),
 	}
 }
 
@@ -33,7 +36,7 @@ func (m *Metrics) WithRequestCounter(namespace string) *Metrics {
 
 	counter.
 		WithName(RequestCounterName).
-		WithDescription("Requests total count to server").
+		WithDescription("Total requests count to server").
 		WithSubSystem("grpc")
 
 	_, ok := m.counters[counter.name]
@@ -46,13 +49,52 @@ func (m *Metrics) WithRequestCounter(namespace string) *Metrics {
 	return m
 }
 
+func (m *Metrics) WithResponseCounter(namespace string) *Metrics {
+	counter := NewCounter(namespace)
+
+	counter.
+		WithName(ResponseCounterName).
+		WithDescription("Total responses count from server").
+		WithSubSystem("grpc")
+
+	_, ok := m.counters[counter.name]
+	if ok {
+		return m
+	}
+
+	m.counters[counter.name] = promauto.NewCounterVec(counter.prometheusOptions(m.appName), []string{"status", "method"})
+
+	return m
+}
+
 func (m *Metrics) IncRequestsCount() error {
-	counter, ok := m.counters[RequestCounterName]
+	c, ok := m.counters[RequestCounterName]
 	if !ok {
 		return ErrRequestCounterIsNotDefined
 	}
 
+	counter, ok := c.(prometheus.Counter)
+	if !ok {
+		return ErrInvalidRequestCounterType
+	}
+
 	counter.Inc()
+
+	return nil
+}
+
+func (m *Metrics) IncResponsesCount(status string, method string) error {
+	c, ok := m.counters[ResponseCounterName]
+	if !ok {
+		return ErrRequestCounterIsNotDefined
+	}
+
+	counter, ok := c.(*prometheus.CounterVec)
+	if !ok {
+		return ErrInvalidResponseCounterType
+	}
+
+	counter.WithLabelValues(status, method).Inc()
 
 	return nil
 }

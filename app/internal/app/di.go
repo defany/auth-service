@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"log"
 	"log/slog"
 	"os"
 
@@ -78,8 +77,6 @@ func (d *DI) Database(ctx context.Context) postgres.Postgres {
 	}
 
 	cfg := d.Config(ctx)
-
-	log.Println(cfg.Database)
 
 	dbConfig := postgres.NewConfig(cfg.Database.Username, cfg.Database.Password, cfg.Database.Host, cfg.Database.Port, cfg.Database.Database)
 
