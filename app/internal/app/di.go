@@ -5,13 +5,18 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/defany/auth-service/app/internal/api/access"
+	"github.com/defany/auth-service/app/internal/api/auth"
 	"github.com/defany/auth-service/app/internal/api/user"
 	"github.com/defany/auth-service/app/internal/config"
 	"github.com/defany/auth-service/app/internal/repository"
 	logrepo "github.com/defany/auth-service/app/internal/repository/log"
 	userrepo "github.com/defany/auth-service/app/internal/repository/user"
 	defserv "github.com/defany/auth-service/app/internal/service"
+	accessservice "github.com/defany/auth-service/app/internal/service/access"
+	authservice "github.com/defany/auth-service/app/internal/service/auth"
 	userservice "github.com/defany/auth-service/app/internal/service/user"
+	"github.com/defany/auth-service/app/pkg/hasher"
 	"github.com/defany/db/pkg/postgres"
 	"github.com/defany/platcom/pkg/closer"
 	"github.com/defany/slogger/pkg/logger/sl"
@@ -28,11 +33,15 @@ type DI struct {
 	}
 
 	services struct {
-		user defserv.UserService
+		user   defserv.UserService
+		auth   defserv.AuthService
+		access defserv.AccessService
 	}
 
 	implementations struct {
-		user *user.Implementation
+		user   *user.Implementation
+		auth   *auth.Implementation
+		access *access.Implementation
 	}
 
 	txManager postgres.TxManager
@@ -125,14 +134,34 @@ func (d *DI) LogRepo(ctx context.Context) repository.LogRepository {
 	return d.repositories.log
 }
 
+func (d *DI) AuthService(ctx context.Context) defserv.AuthService {
+	if d.services.auth != nil {
+		return d.services.auth
+	}
+
+	d.services.auth = authservice.NewService(d.UserRepo(ctx), &d.Config(ctx).JWT)
+
+	return d.services.auth
+}
+
 func (d *DI) UserService(ctx context.Context) defserv.UserService {
 	if d.services.user != nil {
 		return d.services.user
 	}
 
-	d.services.user = userservice.NewService(d.TxManager(ctx), d.UserRepo(ctx), d.LogRepo(ctx))
+	d.services.user = userservice.NewService(d.TxManager(ctx), d.UserRepo(ctx), d.LogRepo(ctx), hasher.NewPassword())
 
 	return d.services.user
+}
+
+func (d *DI) AccessService(ctx context.Context) defserv.AccessService {
+	if d.services.access != nil {
+		return d.services.access
+	}
+
+	d.services.access = accessservice.NewService(d.UserRepo(ctx), &d.Config(ctx).JWT)
+
+	return d.services.access
 }
 
 func (d *DI) UserImpl(ctx context.Context) *user.Implementation {
@@ -143,4 +172,24 @@ func (d *DI) UserImpl(ctx context.Context) *user.Implementation {
 	d.implementations.user = user.NewImplementation(d.Log(ctx), d.UserService(ctx))
 
 	return d.implementations.user
+}
+
+func (d *DI) AccessImpl(ctx context.Context) *access.Implementation {
+	if d.implementations.access != nil {
+		return d.implementations.access
+	}
+
+	d.implementations.access = access.NewImplementation(d.Log(ctx), d.AccessService(ctx))
+
+	return d.implementations.access
+}
+
+func (d *DI) AuthImpl(ctx context.Context) *auth.Implementation {
+	if d.implementations.auth != nil {
+		return d.implementations.auth
+	}
+
+	d.implementations.auth = auth.NewImplementation(d.Log(ctx), d.AuthService(ctx))
+
+	return d.implementations.auth
 }

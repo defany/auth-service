@@ -11,6 +11,7 @@ import (
 	mockrepository "github.com/defany/auth-service/app/internal/repository/mocks"
 	userservice "github.com/defany/auth-service/app/internal/service/user"
 	userv1 "github.com/defany/auth-service/app/pkg/gen/proto/user/v1"
+	"github.com/defany/auth-service/app/pkg/hasher"
 	"github.com/defany/db/pkg/postgres"
 	mockpostgres "github.com/defany/db/pkg/postgres/mocks"
 	"github.com/defany/slogger/pkg/logger/sl"
@@ -103,7 +104,7 @@ func TestService_SuccessUserUpdate(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mocker := tt.mocker(tt.args)
 
-			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log)
+			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log, hasher.NewPassword())
 
 			err := service.Update(tt.args.ctx, tt.args.userUpdateInput)
 
@@ -163,7 +164,7 @@ func TestService_FailUserUpdateProcessTx(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mocker := tt.mocker(tt.args)
 
-			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log)
+			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log, hasher.NewPassword())
 
 			err := service.Update(tt.args.ctx, tt.args.userUpdateInput)
 
@@ -257,7 +258,7 @@ func TestService_FailUserUpdate(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mocker := tt.mocker(tt.args)
 
-			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log)
+			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log, hasher.NewPassword())
 
 			err := service.Update(tt.args.ctx, tt.args.userUpdateInput)
 
@@ -353,7 +354,7 @@ func TestService_FailUserUpdateLog(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mocker := tt.mocker(tt.args)
 
-			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log)
+			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log, hasher.NewPassword())
 
 			err := service.Update(tt.args.ctx, tt.args.userUpdateInput)
 

@@ -42,6 +42,7 @@ type Config struct {
 	Env      string   `json:"env" env-required:"true" env:"ENV"`
 	Metrics  Metrics  `json:"metrics"`
 	Server   Server   `json:"server"`
+	JWT      JWT      `json:"jwt"`
 	Database Database `json:"database"`
 	Logger   sl.Slog  `json:"logger"`
 }

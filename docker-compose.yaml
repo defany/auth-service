@@ -28,7 +28,7 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      CONFIG_PATH: ./local.json
+      CONFIG_PATH: ./compose.json
       DB_HOST: postgres
 
   server:
@@ -41,7 +41,6 @@ services:
       - "7000:7000"
       - "8000:8000"
       - "9000:9000"
-    restart: unless-stopped
     # Не придумал как ожидать завершения мигратора
     depends_on:
       postgres:

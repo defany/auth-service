@@ -11,9 +11,9 @@ import (
 	mockrepository "github.com/defany/auth-service/app/internal/repository/mocks"
 	userservice "github.com/defany/auth-service/app/internal/service/user"
 	userv1 "github.com/defany/auth-service/app/pkg/gen/proto/user/v1"
+	"github.com/defany/auth-service/app/pkg/hasher"
 	"github.com/defany/db/pkg/postgres"
 	mockpostgres "github.com/defany/db/pkg/postgres/mocks"
-	"github.com/defany/platcom/pkg/hash"
 	"github.com/defany/slogger/pkg/logger/sl"
 	"github.com/jackc/pgx/v5"
 	"github.com/stretchr/testify/mock"
@@ -37,24 +37,22 @@ func TestService_SuccessUserGet(t *testing.T) {
 	var (
 		userID = gofakeit.Uint64()
 
-		name            = gofakeit.Name()
-		email           = gofakeit.Email()
-		password        = gofakeit.Password(false, true, true, false, false, 6)
-		passwordConfirm = hash.MD5(password)
-		role            = userv1.UserRole_name[int32(userv1.UserRole_ADMIN)]
-		createdAt       = gofakeit.Date()
-		updatedAt       = gofakeit.Date()
+		name      = gofakeit.Name()
+		email     = gofakeit.Email()
+		password  = gofakeit.Password(false, true, true, false, false, 6)
+		role      = userv1.UserRole_name[int32(userv1.UserRole_ADMIN)]
+		createdAt = gofakeit.Date()
+		updatedAt = gofakeit.Date()
 
 		userGetInput = userID
 
 		userGetOutput = model.User{
-			Name:            name,
-			Email:           email,
-			Password:        password,
-			PasswordConfirm: passwordConfirm,
-			Role:            role,
-			CreatedAt:       createdAt,
-			UpdatedAt:       updatedAt,
+			Nickname:  name,
+			Email:     email,
+			Password:  password,
+			Role:      role,
+			CreatedAt: createdAt,
+			UpdatedAt: updatedAt,
 		}
 
 		logCreateInput = model.Log{
@@ -117,7 +115,7 @@ func TestService_SuccessUserGet(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mocker := tt.mocker(tt.args)
 
-			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log)
+			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log, hasher.NewPassword())
 
 			output, err := service.Get(tt.args.ctx, tt.args.userGetInput)
 
@@ -184,7 +182,7 @@ func TestService_FailUserGetProcessTx(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mocker := tt.mocker(tt.args)
 
-			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log)
+			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log, hasher.NewPassword())
 
 			output, err := service.Get(tt.args.ctx, tt.args.userGetInput)
 
@@ -275,7 +273,7 @@ func TestService_FailUserGet(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mocker := tt.mocker(tt.args)
 
-			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log)
+			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log, hasher.NewPassword())
 
 			output, err := service.Get(tt.args.ctx, tt.args.userGetInput)
 
@@ -369,7 +367,7 @@ func TestService_FailUserGetLog(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mocker := tt.mocker(tt.args)
 
-			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log)
+			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log, hasher.NewPassword())
 
 			output, err := service.Get(tt.args.ctx, tt.args.userGetInput)
 

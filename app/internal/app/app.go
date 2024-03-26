@@ -8,6 +8,8 @@ import (
 	"net/http"
 
 	"github.com/defany/auth-service/app/internal/config"
+	accessv1 "github.com/defany/auth-service/app/pkg/gen/proto/access/v1"
+	authv1 "github.com/defany/auth-service/app/pkg/gen/proto/auth/v1"
 	"github.com/defany/platcom/pkg/closer"
 	"github.com/defany/platcom/pkg/swagger"
 	"github.com/rakyll/statik/fs"
@@ -109,7 +111,9 @@ func (a *App) setupGRPCServer(ctx context.Context) {
 
 	reflection.Register(a.grpcServer)
 
+	authv1.RegisterAuthServiceServer(a.grpcServer, a.DI().AuthImpl(ctx))
 	userv1.RegisterUserServiceServer(a.grpcServer, a.DI().UserImpl(ctx))
+	accessv1.RegisterAccessServiceServer(a.grpcServer, a.DI().AccessImpl(ctx))
 
 	return
 }
