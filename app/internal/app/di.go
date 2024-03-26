@@ -16,6 +16,7 @@ import (
 	accessservice "github.com/defany/auth-service/app/internal/service/access"
 	authservice "github.com/defany/auth-service/app/internal/service/auth"
 	userservice "github.com/defany/auth-service/app/internal/service/user"
+	"github.com/defany/auth-service/app/pkg/hasher"
 	"github.com/defany/db/pkg/postgres"
 	"github.com/defany/platcom/pkg/closer"
 	"github.com/defany/slogger/pkg/logger/sl"
@@ -148,7 +149,7 @@ func (d *DI) UserService(ctx context.Context) defserv.UserService {
 		return d.services.user
 	}
 
-	d.services.user = userservice.NewService(d.TxManager(ctx), d.UserRepo(ctx), d.LogRepo(ctx))
+	d.services.user = userservice.NewService(d.TxManager(ctx), d.UserRepo(ctx), d.LogRepo(ctx), hasher.NewPassword())
 
 	return d.services.user
 }

@@ -11,14 +11,12 @@ import (
 func (s *service) Create(ctx context.Context, user model.UserCreate) (uint64, error) {
 	var userID uint64
 
-	password, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	password, err := s.passHasher.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return 0, err
 	}
 
 	user.Password = string(password)
-	// TODO: убрать нафиг эту колонку из бд в принципе, зачем она там, лол
-	user.PasswordConfirm = string(password)
 
 	err = s.tx.ReadCommitted(ctx, func(ctx context.Context) error {
 		id, err := s.repo.Create(ctx, user)

@@ -13,7 +13,7 @@ func GenerateToken(user model.User, secretKey []byte, duration time.Duration) (s
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(duration)),
 		},
-		Username: user.Name,
+		Username: user.Nickname,
 		Role:     user.Role,
 	}
 

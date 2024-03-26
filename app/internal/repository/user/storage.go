@@ -12,15 +12,13 @@ const (
 )
 
 const (
-	idColumn = "id"
-	// TODO: зарефакторить на nickname
-	nameColumn            = "name"
-	emailColumn           = "email"
-	passwordColumn        = "password"
-	passwordConfirmColumn = "password_confirm"
-	roleColumn            = "role"
-	createdAtColumn       = "created_at"
-	updatedAtColumn       = "updated_at"
+	idColumn        = "id"
+	nicknameColumn  = "nickname"
+	emailColumn     = "email"
+	passwordColumn  = "password"
+	roleColumn      = "role"
+	createdAtColumn = "created_at"
+	updatedAtColumn = "updated_at"
 )
 
 type repository struct {

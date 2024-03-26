@@ -7,14 +7,13 @@ import (
 )
 
 type User struct {
-	ID              uint64
-	Name            string
-	Email           string
-	Password        string
-	PasswordConfirm string
-	Role            string
-	CreatedAt       time.Time
-	UpdatedAt       time.Time
+	ID        uint64
+	Nickname  string
+	Email     string
+	Password  string
+	Role      string
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type UserCreate struct {

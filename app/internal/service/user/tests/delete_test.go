@@ -10,6 +10,7 @@ import (
 	"github.com/defany/auth-service/app/internal/repository"
 	mockrepository "github.com/defany/auth-service/app/internal/repository/mocks"
 	userservice "github.com/defany/auth-service/app/internal/service/user"
+	"github.com/defany/auth-service/app/pkg/hasher"
 	"github.com/defany/db/pkg/postgres"
 	mockpostgres "github.com/defany/db/pkg/postgres/mocks"
 	"github.com/defany/slogger/pkg/logger/sl"
@@ -91,7 +92,7 @@ func TestService_SuccessUserDelete(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mocker := tt.mocker(tt.args)
 
-			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log)
+			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log, hasher.NewPassword())
 
 			err := service.Delete(tt.args.ctx, tt.args.userDeleteInput)
 
@@ -151,7 +152,7 @@ func TestService_FailUserDeleteProcessTx(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mocker := tt.mocker(tt.args)
 
-			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log)
+			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log, hasher.NewPassword())
 
 			err := service.Delete(tt.args.ctx, tt.args.userDeleteInput)
 
@@ -233,7 +234,7 @@ func TestService_FailUserDelete(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mocker := tt.mocker(tt.args)
 
-			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log)
+			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log, hasher.NewPassword())
 
 			err := service.Delete(tt.args.ctx, tt.args.userDeleteInput)
 
@@ -318,7 +319,7 @@ func TestService_FailUserDeleteLog(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mocker := tt.mocker(tt.args)
 
-			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log)
+			service := userservice.NewService(mocker.txManager, mocker.user, mocker.log, hasher.NewPassword())
 
 			err := service.Delete(tt.args.ctx, tt.args.userDeleteInput)
 
