@@ -13,7 +13,7 @@ import (
 )
 
 func (r *repository) User(ctx context.Context, id uint64) (model.User, error) {
-	q := r.qb.Select(idColumn, emailColumn, nameColumn, roleColumn, createdAtColumn, updatedAtColumn, passwordColumn).
+	q := r.qb.Select(idColumn, emailColumn, nicknameColumn, roleColumn, createdAtColumn, updatedAtColumn, passwordColumn).
 		From(table).
 		Where(squirrel.Eq{
 			idColumn: id,
@@ -38,10 +38,10 @@ func (r *repository) User(ctx context.Context, id uint64) (model.User, error) {
 }
 
 func (r *repository) UserByNickname(ctx context.Context, nickname string) (model.User, error) {
-	q := r.qb.Select(idColumn, emailColumn, nameColumn, roleColumn, createdAtColumn, updatedAtColumn, passwordColumn).
+	q := r.qb.Select(idColumn, emailColumn, nicknameColumn, roleColumn, createdAtColumn, updatedAtColumn, passwordColumn).
 		From(table).
 		Where(squirrel.Eq{
-			nameColumn: nickname,
+			nicknameColumn: nickname,
 		})
 
 	sql, args, err := q.ToSql()

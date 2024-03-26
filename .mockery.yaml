@@ -2,7 +2,7 @@ with-expecter: True
 dir: "{{.InterfaceDir}}/mocks"
 mockname: "Mock{{.InterfaceName}}"
 outpkg: "mock{{.PackageName}}"
-filename: "{{.InterfaceName}}.go"
+filename: "{{.InterfaceName | snakecase}}.go"
 include-auto-generated: false
 all: True
 packages:

@@ -14,7 +14,6 @@ import (
 	"github.com/defany/auth-service/app/pkg/hasher"
 	"github.com/defany/db/pkg/postgres"
 	mockpostgres "github.com/defany/db/pkg/postgres/mocks"
-	"github.com/defany/platcom/pkg/hash"
 	"github.com/defany/slogger/pkg/logger/sl"
 	"github.com/jackc/pgx/v5"
 	"github.com/stretchr/testify/mock"
@@ -38,24 +37,22 @@ func TestService_SuccessUserGet(t *testing.T) {
 	var (
 		userID = gofakeit.Uint64()
 
-		name            = gofakeit.Name()
-		email           = gofakeit.Email()
-		password        = gofakeit.Password(false, true, true, false, false, 6)
-		passwordConfirm = hash.MD5(password)
-		role            = userv1.UserRole_name[int32(userv1.UserRole_ADMIN)]
-		createdAt       = gofakeit.Date()
-		updatedAt       = gofakeit.Date()
+		name      = gofakeit.Name()
+		email     = gofakeit.Email()
+		password  = gofakeit.Password(false, true, true, false, false, 6)
+		role      = userv1.UserRole_name[int32(userv1.UserRole_ADMIN)]
+		createdAt = gofakeit.Date()
+		updatedAt = gofakeit.Date()
 
 		userGetInput = userID
 
 		userGetOutput = model.User{
-			Name:            name,
-			Email:           email,
-			Password:        password,
-			PasswordConfirm: passwordConfirm,
-			Role:            role,
-			CreatedAt:       createdAt,
-			UpdatedAt:       updatedAt,
+			Nickname:  name,
+			Email:     email,
+			Password:  password,
+			Role:      role,
+			CreatedAt: createdAt,
+			UpdatedAt: updatedAt,
 		}
 
 		logCreateInput = model.Log{

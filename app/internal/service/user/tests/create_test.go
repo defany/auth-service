@@ -36,18 +36,16 @@ func TestService_SuccessUserCreate(t *testing.T) {
 	var (
 		userID = gofakeit.Uint64()
 
-		name            = gofakeit.Name()
-		email           = gofakeit.Email()
-		password        = gofakeit.Password(false, true, true, false, false, 6)
-		passwordConfirm = password
-		role            = userv1.UserRole_name[int32(userv1.UserRole_ADMIN)]
+		name     = gofakeit.Name()
+		email    = gofakeit.Email()
+		password = gofakeit.Password(false, true, true, false, false, 6)
+		role     = userv1.UserRole_name[int32(userv1.UserRole_ADMIN)]
 
 		userCreateInput = model.UserCreate{
-			Name:            name,
-			Email:           email,
-			Password:        password,
-			PasswordConfirm: passwordConfirm,
-			Role:            role,
+			Name:     name,
+			Email:    email,
+			Password: password,
+			Role:     role,
 		}
 
 		logCreateInput = model.Log{
@@ -198,18 +196,16 @@ func TestService_FailUserCreate(t *testing.T) {
 	var (
 		userID = gofakeit.Uint64()
 
-		name            = gofakeit.Name()
-		email           = gofakeit.Email()
-		password        = gofakeit.Password(false, true, true, false, false, 6)
-		passwordConfirm = password
-		role            = userv1.UserRole_name[int32(userv1.UserRole_ADMIN)]
+		name     = gofakeit.Name()
+		email    = gofakeit.Email()
+		password = gofakeit.Password(false, true, true, false, false, 6)
+		role     = userv1.UserRole_name[int32(userv1.UserRole_ADMIN)]
 
 		userCreateInput = model.UserCreate{
-			Name:            name,
-			Email:           email,
-			Password:        password,
-			PasswordConfirm: passwordConfirm,
-			Role:            role,
+			Name:     name,
+			Email:    email,
+			Password: password,
+			Role:     role,
 		}
 
 		logCreateInput = model.Log{
@@ -297,18 +293,16 @@ func TestService_FailUserCreateLog(t *testing.T) {
 	var (
 		userID = gofakeit.Uint64()
 
-		name            = gofakeit.Name()
-		email           = gofakeit.Email()
-		password        = gofakeit.Password(false, true, true, false, false, 6)
-		passwordConfirm = password
-		role            = userv1.UserRole_name[int32(userv1.UserRole_ADMIN)]
+		name     = gofakeit.Name()
+		email    = gofakeit.Email()
+		password = gofakeit.Password(false, true, true, false, false, 6)
+		role     = userv1.UserRole_name[int32(userv1.UserRole_ADMIN)]
 
 		userCreateInput = model.UserCreate{
-			Name:            name,
-			Email:           email,
-			Password:        password,
-			PasswordConfirm: passwordConfirm,
-			Role:            role,
+			Name:     name,
+			Email:    email,
+			Password: password,
+			Role:     role,
 		}
 
 		logCreateInput = model.Log{

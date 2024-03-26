@@ -17,8 +17,6 @@ func (s *service) Create(ctx context.Context, user model.UserCreate) (uint64, er
 	}
 
 	user.Password = string(password)
-	// TODO: убрать нафиг эту колонку из бд в принципе, зачем она там, лол
-	user.PasswordConfirm = string(password)
 
 	err = s.tx.ReadCommitted(ctx, func(ctx context.Context) error {
 		id, err := s.repo.Create(ctx, user)

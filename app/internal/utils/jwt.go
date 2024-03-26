@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"log"
 	"time"
 
 	"github.com/defany/auth-service/app/internal/model"
@@ -14,7 +13,7 @@ func GenerateToken(user model.User, secretKey []byte, duration time.Duration) (s
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(duration)),
 		},
-		Username: user.Name,
+		Username: user.Nickname,
 		Role:     user.Role,
 	}
 
@@ -36,7 +35,6 @@ func VerifyToken(tokenStr string, secretKey []byte) (*model.UserClaims, error) {
 			return secretKey, nil
 		},
 	)
-	log.Println(tokenStr, token)
 	if err != nil || !token.Valid {
 		return nil, errors.Errorf("invalid token: %s", err.Error())
 	}

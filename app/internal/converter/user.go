@@ -21,7 +21,7 @@ func ToUserCreate(input *userv1.CreateRequest) model.UserCreate {
 func ToGetResponse(input model.User) *userv1.GetResponse {
 	return &userv1.GetResponse{
 		Id:        int64(input.ID),
-		Name:      input.Name,
+		Name:      input.Nickname,
 		Email:     input.Email,
 		Role:      ToUserProtoRole(input.Role),
 		CreatedAt: timestamppb.New(input.CreatedAt),
