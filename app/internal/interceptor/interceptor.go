@@ -24,8 +24,6 @@ func (i *Interceptor) Interceptor(ctx context.Context, req any, server *grpc.Una
 	res, err := handler(ctx, req)
 	if err != nil {
 		status = "error"
-
-		tracer.SetError(err)
 	}
 
 	metrics.HistogramResponseTimeObserve(status, server.FullMethod, time.Since(startAt).Seconds())
