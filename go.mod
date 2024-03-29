@@ -41,6 +41,7 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mfridman/interpolate v0.0.2 // indirect
+	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/pressly/goose/v3 v3.19.1 // indirect
 	github.com/prometheus/client_model v0.5.0 // indirect
@@ -48,6 +49,9 @@ require (
 	github.com/prometheus/procfs v0.12.0 // indirect
 	github.com/sethvargo/go-retry v0.2.4 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
+	github.com/uber/jaeger-client-go v2.30.0+incompatible // indirect
+	github.com/uber/jaeger-lib v2.4.1+incompatible // indirect
+	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/exp v0.0.0-20240314144324-c7f7c6466f7f // indirect
 	golang.org/x/net v0.21.0 // indirect

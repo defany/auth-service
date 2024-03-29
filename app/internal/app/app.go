@@ -10,7 +10,6 @@ import (
 	"github.com/defany/auth-service/app/internal/config"
 	accessv1 "github.com/defany/auth-service/app/pkg/gen/proto/access/v1"
 	authv1 "github.com/defany/auth-service/app/pkg/gen/proto/auth/v1"
-	"github.com/defany/auth-service/app/pkg/metrics"
 	"github.com/defany/platcom/pkg/closer"
 	"github.com/defany/platcom/pkg/swagger"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -45,10 +44,12 @@ func (a *App) Run(ctx context.Context) error {
 	defer func() {
 		closer.Close()
 
-		a.DI().Log(ctx).Info("application closed :9")
+		a.DI(ctx).Log(ctx).Info("application closed :9")
 	}()
 
 	wg, ctx := errgroup.WithContext(ctx)
+
+	a.DI(ctx).SetupMetrics(ctx)
 
 	wg.Go(func() error {
 		return a.runSwaggerHTTPServer(ctx)
@@ -69,12 +70,12 @@ func (a *App) Run(ctx context.Context) error {
 	return wg.Wait()
 }
 
-func (a *App) DI() *DI {
+func (a *App) DI(ctx context.Context) *DI {
 	if a.di != nil {
 		return a.di
 	}
 
-	a.di = newDI()
+	a.di = newDI(ctx)
 
 	return a.di
 }
@@ -84,15 +85,15 @@ func (a *App) runGRPCServer(ctx context.Context) error {
 		a.setupGRPCServer(ctx)
 	}
 
-	lis, err := net.Listen("tcp", a.DI().Config(ctx).Server.GRPC.Addr())
+	lis, err := net.Listen("tcp", a.DI(ctx).Config(ctx).Server.GRPC.Addr())
 	if err != nil {
 		return err
 	}
 
-	a.DI().Log(ctx).Info("go grpc!", slog.String("addr", a.DI().Config(ctx).Server.GRPC.Addr()))
+	a.DI(ctx).Log(ctx).Info("go grpc!", slog.String("addr", a.DI(ctx).Config(ctx).Server.GRPC.Addr()))
 
 	closer.Add(func() error {
-		a.DI().Log(ctx).Info("closing grpc server")
+		a.DI(ctx).Log(ctx).Info("closing grpc server")
 
 		a.grpcServer.GracefulStop()
 
@@ -111,20 +112,18 @@ func (a *App) runGRPCServer(ctx context.Context) error {
 }
 
 func (a *App) setupGRPCServer(ctx context.Context) {
-	metric := metrics.NewMetrics("auth_service")
-	metric.WithRequestCounter("grpc")
-	metric.WithResponseCounter("grpc")
+	itcp := interceptor.NewInterceptor()
 
 	a.grpcServer = grpc.NewServer(
 		grpc.Creds(insecure.NewCredentials()),
-		grpc.UnaryInterceptor(interceptor.Interceptor(metric)),
+		grpc.UnaryInterceptor(itcp.Interceptor),
 	)
 
 	reflection.Register(a.grpcServer)
 
-	authv1.RegisterAuthServiceServer(a.grpcServer, a.DI().AuthImpl(ctx))
-	userv1.RegisterUserServiceServer(a.grpcServer, a.DI().UserImpl(ctx))
-	accessv1.RegisterAccessServiceServer(a.grpcServer, a.DI().AccessImpl(ctx))
+	authv1.RegisterAuthServiceServer(a.grpcServer, a.DI(ctx).AuthImpl(ctx))
+	userv1.RegisterUserServiceServer(a.grpcServer, a.DI(ctx).UserImpl(ctx))
+	accessv1.RegisterAccessServiceServer(a.grpcServer, a.DI(ctx).AccessImpl(ctx))
 
 	return
 }
@@ -136,10 +135,10 @@ func (a *App) runHTTPServer(ctx context.Context) error {
 		}
 	}
 
-	a.DI().Log(ctx).Info("go http!", slog.String("addr", a.DI().Config(ctx).Server.HTTP.Addr()))
+	a.DI(ctx).Log(ctx).Info("go http!", slog.String("addr", a.DI(ctx).Config(ctx).Server.HTTP.Addr()))
 
 	closer.Add(func() error {
-		a.DI().Log(ctx).Info("closing http server")
+		a.DI(ctx).Log(ctx).Info("closing http server")
 
 		return a.httpServer.Shutdown(ctx)
 	})
@@ -158,7 +157,7 @@ func (a *App) runHTTPServer(ctx context.Context) error {
 func (a *App) setupHTTPServer(ctx context.Context) error {
 	mux := runtime.NewServeMux()
 
-	serverConfig := a.DI().Config(ctx).Server
+	serverConfig := a.DI(ctx).Config(ctx).Server
 
 	grpcAddr := serverConfig.GRPC.Addr()
 	httpAddr := serverConfig.HTTP.Addr()
@@ -192,10 +191,10 @@ func (a *App) runSwaggerHTTPServer(ctx context.Context) error {
 		}
 	}
 
-	a.DI().Log(ctx).Info("go swagger http!", slog.String("addr", a.DI().Config(ctx).Server.Swagger.Addr()))
+	a.DI(ctx).Log(ctx).Info("go swagger http!", slog.String("addr", a.DI(ctx).Config(ctx).Server.Swagger.Addr()))
 
 	closer.Add(func() error {
-		a.DI().Log(ctx).Info("closing swagger http server")
+		a.DI(ctx).Log(ctx).Info("closing swagger http server")
 
 		return a.swaggerServer.Shutdown(ctx)
 	})
@@ -219,11 +218,11 @@ func (a *App) setupSwaggerHTTPServer(ctx context.Context) error {
 
 	serve := swagger.NewServe("/api.swagger.json")
 
-	if a.DI().Config(ctx).Env == config.EnvDev {
-		serve.WithHost(a.DI().Config(ctx).Server.HTTP.Addr())
+	if a.DI(ctx).Config(ctx).Env == config.EnvDev {
+		serve.WithHost(a.DI(ctx).Config(ctx).Server.HTTP.Addr())
 	}
 
-	serve.WithLogger(a.DI().Log(ctx))
+	serve.WithLogger(a.DI(ctx).Log(ctx))
 
 	if err := serve.Setup(); err != nil {
 		return err
@@ -234,7 +233,7 @@ func (a *App) setupSwaggerHTTPServer(ctx context.Context) error {
 	mux.HandleFunc("/api.swagger.json", serve.Middleware())
 
 	a.swaggerServer = &http.Server{
-		Addr:    a.DI().Config(ctx).Server.Swagger.Addr(),
+		Addr:    a.DI(ctx).Config(ctx).Server.Swagger.Addr(),
 		Handler: mux,
 	}
 
@@ -246,17 +245,17 @@ func (a *App) runPrometheusServer(ctx context.Context) error {
 	mux.Handle("/metrics", promhttp.Handler())
 
 	a.prometheusServer = &http.Server{
-		Addr:    a.DI().Config(ctx).Server.Prometheus.Addr(),
+		Addr:    a.DI(ctx).Config(ctx).Server.Prometheus.Addr(),
 		Handler: mux,
 	}
 
 	closer.Add(func() error {
-		a.DI().Log(ctx).Info("closing prometheus http server")
+		a.DI(ctx).Log(ctx).Info("closing prometheus http server")
 
 		return a.prometheusServer.Shutdown(ctx)
 	})
 
-	a.DI().Log(ctx).Info("go prometheus!", slog.String("addr", a.DI().Config(ctx).Server.Prometheus.Addr()))
+	a.DI(ctx).Log(ctx).Info("go prometheus!", slog.String("addr", a.DI(ctx).Config(ctx).Server.Prometheus.Addr()))
 
 	err := a.prometheusServer.ListenAndServe()
 	if err != nil {

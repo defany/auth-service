@@ -15,11 +15,11 @@ func main() {
 
 	a := app.NewApp()
 
-	db := a.DI().Database(ctx)
+	db := a.DI(ctx).Database(ctx)
 
-	log := a.DI().Log(ctx)
+	log := a.DI(ctx).Log(ctx)
 
-	migrator, err := postgres.NewMigrator(db.Pool(), a.DI().Config(ctx).Database.MigrationsDir)
+	migrator, err := postgres.NewMigrator(db.Pool(), a.DI(ctx).Config(ctx).Database.MigrationsDir)
 	if err != nil {
 		log.Error("failed to setup migrator", sl.ErrAttr(err))
 

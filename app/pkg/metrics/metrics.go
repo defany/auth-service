@@ -1,100 +1,65 @@
 package metrics
 
 import (
-	"errors"
+	"context"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 )
 
-const (
-	RequestCounterName  = "requests_total"
-	ResponseCounterName = "responses_total"
-)
-
-var (
-	ErrRequestCounterIsNotDefined = errors.New("request counter is not defined. Maybe you forgot to define it")
-	ErrInvalidRequestCounterType  = errors.New("failed to cast counter to prometheus.Counter")
-	ErrInvalidResponseCounterType = errors.New("failed to cast counter to prometheus.CounterVec")
-)
-
 type Metrics struct {
-	appName string
+	appName   string
+	nameSpace string
 
-	counters map[string]any
+	requestCounter        prometheus.Counter
+	responseCounter       *prometheus.CounterVec
+	histogramResponseTime *prometheus.HistogramVec
 }
 
-func NewMetrics(appName string) *Metrics {
-	return &Metrics{
-		appName:  appName,
-		counters: make(map[string]any),
+var metrics *Metrics
+
+func Setup(_ context.Context, appName string, namespace string) error {
+	metrics = &Metrics{
+		requestCounter: promauto.NewCounter(
+			prometheus.CounterOpts{
+				Namespace: namespace,
+				Subsystem: "grpc",
+				Name:      appName + "_requests_total",
+				Help:      "Количество запросов к серверу",
+			},
+		),
+		responseCounter: promauto.NewCounterVec(
+			prometheus.CounterOpts{
+				Namespace: namespace,
+				Subsystem: "grpc",
+				Name:      appName + "_responses_total",
+				Help:      "Количество ответов от сервера",
+			},
+			[]string{"status", "method"},
+		),
+		histogramResponseTime: promauto.NewHistogramVec(
+			prometheus.HistogramOpts{
+				Namespace: namespace,
+				Subsystem: "grpc",
+				Name:      appName + "_histogram_response_time_seconds",
+				Help:      "Время ответа от сервера",
+				Buckets:   prometheus.ExponentialBuckets(0.0001, 2, 16),
+			},
+			[]string{"status", "method"},
+		),
 	}
-}
-
-func (m *Metrics) WithRequestCounter(namespace string) *Metrics {
-	counter := NewCounter(namespace)
-
-	counter.
-		WithName(RequestCounterName).
-		WithDescription("Total requests count to server").
-		WithSubSystem("grpc")
-
-	_, ok := m.counters[counter.name]
-	if ok {
-		return m
-	}
-
-	m.counters[counter.name] = promauto.NewCounter(counter.prometheusOptions(m.appName))
-
-	return m
-}
-
-func (m *Metrics) WithResponseCounter(namespace string) *Metrics {
-	counter := NewCounter(namespace)
-
-	counter.
-		WithName(ResponseCounterName).
-		WithDescription("Total responses count from server").
-		WithSubSystem("grpc")
-
-	_, ok := m.counters[counter.name]
-	if ok {
-		return m
-	}
-
-	m.counters[counter.name] = promauto.NewCounterVec(counter.prometheusOptions(m.appName), []string{"status", "method"})
-
-	return m
-}
-
-func (m *Metrics) IncRequestsCount() error {
-	c, ok := m.counters[RequestCounterName]
-	if !ok {
-		return ErrRequestCounterIsNotDefined
-	}
-
-	counter, ok := c.(prometheus.Counter)
-	if !ok {
-		return ErrInvalidRequestCounterType
-	}
-
-	counter.Inc()
 
 	return nil
 }
 
-func (m *Metrics) IncResponsesCount(status string, method string) error {
-	c, ok := m.counters[ResponseCounterName]
-	if !ok {
-		return ErrRequestCounterIsNotDefined
-	}
+func IncRequestCounter() {
+	metrics.requestCounter.Inc()
+}
 
-	counter, ok := c.(*prometheus.CounterVec)
-	if !ok {
-		return ErrInvalidResponseCounterType
-	}
+func IncResponseCounter(status string, method string) {
+	metrics.responseCounter.WithLabelValues(status, method).Inc()
+}
 
-	counter.WithLabelValues(status, method).Inc()
-
-	return nil
+func HistogramResponseTimeObserve(status string, method string, t float64) {
+	metrics.histogramResponseTime.WithLabelValues(status, method).Observe(t)
 }
