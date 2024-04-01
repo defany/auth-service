@@ -17,7 +17,7 @@ type User struct {
 }
 
 type UserCreate struct {
-	Name            string
+	Nickname        string
 	Email           string
 	Password        string
 	PasswordConfirm string
@@ -25,10 +25,10 @@ type UserCreate struct {
 }
 
 type UserUpdate struct {
-	ID    uint64
-	Name  *string
-	Email *string
-	Role  *string
+	ID       uint64
+	Nickname *string
+	Email    *string
+	Role     *string
 }
 
 type UserLoginInput struct {

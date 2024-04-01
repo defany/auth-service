@@ -10,7 +10,7 @@ import (
 
 func ToUserCreate(input *userv1.CreateRequest) model.UserCreate {
 	return model.UserCreate{
-		Name:            input.GetName(),
+		Nickname:        input.GetName(),
 		Email:           input.GetEmail(),
 		Password:        input.GetPassword(),
 		PasswordConfirm: input.GetPasswordConfirm(),
@@ -35,10 +35,10 @@ func ToUserUpdate(input *userv1.UpdateRequest) model.UserUpdate {
 	role := input.GetRole().String()
 
 	return model.UserUpdate{
-		ID:    uint64(input.GetId()),
-		Name:  &name,
-		Email: &email,
-		Role:  &role,
+		ID:       uint64(input.GetId()),
+		Nickname: &name,
+		Email:    &email,
+		Role:     &role,
 	}
 }
 

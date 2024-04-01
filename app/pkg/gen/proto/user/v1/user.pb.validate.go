@@ -58,7 +58,7 @@ func (m *User) validate(all bool) error {
 
 	// no validation rules for Id
 
-	// no validation rules for Name
+	// no validation rules for Nickname
 
 	// no validation rules for Email
 
@@ -225,7 +225,7 @@ func (m *CreateRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Name
+	// no validation rules for Nickname
 
 	// no validation rules for Email
 
@@ -540,7 +540,7 @@ func (m *GetResponse) validate(all bool) error {
 
 	// no validation rules for Id
 
-	// no validation rules for Name
+	// no validation rules for Nickname
 
 	// no validation rules for Email
 
@@ -706,7 +706,7 @@ func (m *UpdateRequest) validate(all bool) error {
 	// no validation rules for Id
 
 	if m.Name != nil {
-		// no validation rules for Name
+		// no validation rules for Nickname
 	}
 
 	if m.Email != nil {
