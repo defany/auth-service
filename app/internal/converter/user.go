@@ -10,7 +10,7 @@ import (
 
 func ToUserCreate(input *userv1.CreateRequest) model.UserCreate {
 	return model.UserCreate{
-		Nickname:        input.GetName(),
+		Nickname:        cond.Ternary(input.GetNickname() != "", input.GetNickname(), input.GetName()),
 		Email:           input.GetEmail(),
 		Password:        input.GetPassword(),
 		PasswordConfirm: input.GetPasswordConfirm(),
@@ -22,6 +22,7 @@ func ToGetResponse(input model.User) *userv1.GetResponse {
 	return &userv1.GetResponse{
 		Id:        int64(input.ID),
 		Name:      input.Nickname,
+		Nickname:  input.Nickname,
 		Email:     input.Email,
 		Role:      ToUserProtoRole(input.Role),
 		CreatedAt: timestamppb.New(input.CreatedAt),
@@ -30,7 +31,7 @@ func ToGetResponse(input model.User) *userv1.GetResponse {
 }
 
 func ToUserUpdate(input *userv1.UpdateRequest) model.UserUpdate {
-	name := input.GetName()
+	name := cond.Ternary(input.GetNickname() != "", input.GetNickname(), input.GetName())
 	email := input.GetEmail()
 	role := input.GetRole().String()
 
