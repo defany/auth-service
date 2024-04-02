@@ -22,9 +22,10 @@ type Metrics struct {
 }
 
 type Server struct {
-	GRPC    GRPC    `json:"grpc"`
-	HTTP    HTTP    `json:"http"`
-	Swagger Swagger `json:"swagger"`
+	GRPC       GRPC       `json:"grpc"`
+	HTTP       HTTP       `json:"http"`
+	Swagger    Swagger    `json:"swagger"`
+	Prometheus Prometheus `json:"prometheus"`
 }
 
 type Database struct {
@@ -38,8 +39,13 @@ type Database struct {
 	ConnectAttemptsDelay time.Duration `json:"connect_attempts_delay" env:"DATABASE_CONNECT_ATTEMPTS_DELAY" env-default:"5s"`
 }
 
+type App struct {
+	Name string `json:"name" env:"APP_NAME" env-default:"auth_service"`
+}
+
 type Config struct {
 	Env      string   `json:"env" env-required:"true" env:"ENV"`
+	App      App      `json:"app"`
 	Metrics  Metrics  `json:"metrics"`
 	Server   Server   `json:"server"`
 	JWT      JWT      `json:"jwt"`

@@ -2,8 +2,30 @@ version: '3'
 
 volumes:
   postgres_volume:
+  prometheus_data:
+  grafana_data:
 
 services:
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - "./prometheus.yml:/etc/prometheus/prometheus.yml"
+      - "./rules.yml:/etc/prometheus/rules.yml"
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+  node-exporter:
+    image: prom/node-exporter
+    ports:
+      - "9100:9100"
+
+  grafana:
+    image: grafana/grafana-oss:10.0.3
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+
   postgres:
     image: postgres:16.1-alpine3.19
     environment:
@@ -19,6 +41,16 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter
+    ports:
+      - 9187:9187
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${PG_USER}:${PG_PASSWORD}@postgres:5432/${PG_DATABASE_NAME}?sslmode=disable"
+    links:
+      - postgres
+      - prometheus
 
   migrator:
     build:
@@ -41,7 +73,19 @@ services:
       - "7000:7000"
       - "8000:8000"
       - "9000:9000"
+      - "10000:10000"
     # Не придумал как ожидать завершения мигратора
     depends_on:
       postgres:
         condition: service_healthy
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.48
+    ports:
+      - "5775:5775/udp"
+      - "6831:6831/udp"
+      - "6832:6832/udp"
+      - "5778:5778"
+      - "16686:16686" # web
+      - "14268:14268"
+      - "9411:9411"

@@ -17,6 +17,7 @@ import (
 	authservice "github.com/defany/auth-service/app/internal/service/auth"
 	userservice "github.com/defany/auth-service/app/internal/service/user"
 	"github.com/defany/auth-service/app/pkg/hasher"
+	metrics "github.com/defany/auth-service/app/pkg/metrics"
 	"github.com/defany/db/pkg/postgres"
 	"github.com/defany/platcom/pkg/closer"
 	"github.com/defany/slogger/pkg/logger/sl"
@@ -48,8 +49,10 @@ type DI struct {
 	db        postgres.Postgres
 }
 
-func newDI() *DI {
-	return &DI{}
+func newDI(_ context.Context) *DI {
+	di := &DI{}
+
+	return di
 }
 
 func (d *DI) Log(ctx context.Context) *slog.Logger {
@@ -102,6 +105,18 @@ func (d *DI) Database(ctx context.Context) postgres.Postgres {
 	d.db = db
 
 	return d.db
+}
+
+func (d *DI) SetupMetrics(ctx context.Context) {
+	cfg := d.Config(ctx)
+
+	if err := metrics.Setup(ctx, cfg.App.Name, "server"); err != nil {
+		d.Log(ctx).Error("failed to setup metrics", sl.ErrAttr(err))
+
+		os.Exit(1)
+	}
+
+	return
 }
 
 func (d *DI) TxManager(ctx context.Context) postgres.TxManager {
