@@ -126,6 +126,8 @@ func (m *User) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for Nickname
+
 	if len(errors) > 0 {
 		return UserMultiError(errors)
 	}
@@ -234,6 +236,8 @@ func (m *CreateRequest) validate(all bool) error {
 	// no validation rules for PasswordConfirm
 
 	// no validation rules for Role
+
+	// no validation rules for Nickname
 
 	if len(errors) > 0 {
 		return CreateRequestMultiError(errors)
@@ -604,6 +608,8 @@ func (m *GetResponse) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for Nickname
+
 	if len(errors) > 0 {
 		return GetResponseMultiError(errors)
 	}
@@ -715,6 +721,10 @@ func (m *UpdateRequest) validate(all bool) error {
 
 	if m.Role != nil {
 		// no validation rules for Role
+	}
+
+	if m.Nickname != nil {
+		// no validation rules for Nickname
 	}
 
 	if len(errors) > 0 {

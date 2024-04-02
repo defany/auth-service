@@ -44,7 +44,7 @@ func TestImplementation_Get(t *testing.T) {
 
 		userModel = model.User{
 			ID:        id,
-			Name:      name,
+			Nickname:  name,
 			Email:     email,
 			Role:      role.String(),
 			CreatedAt: createdAt,
@@ -54,6 +54,7 @@ func TestImplementation_Get(t *testing.T) {
 		res = &userv1.GetResponse{
 			Id:        int64(id),
 			Name:      name,
+			Nickname:  name,
 			Email:     email,
 			Role:      role,
 			CreatedAt: timestamppb.New(createdAt),

@@ -11,24 +11,6 @@ import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
-option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
-  info: {
-    title: "Auth API"
-    version: "1.0.0"
-    contact: {
-      name: "DeFaNy"
-      url: "t.me/defane"
-    }
-  }
-  host: "localhost:8000"
-  schemes: [
-    HTTP,
-    HTTPS
-  ]
-  consumes: "application/json"
-  produces: "application/json"
-};
-
 service UserService {
   // Create new user
   rpc Create(CreateRequest) returns (CreateResponse) {
@@ -63,13 +45,15 @@ service UserService {
 // 2) Не привязываемся к протоколу
 message User {
   int64 id = 1 [(buf.validate.field).uint64.gt = 0];
-  string name = 2 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 10];
+  // This field is deprecated, use nickname instead
+  string name = 2 [deprecated=true,  (buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 10];
   string email = 3 [(buf.validate.field).string.email = true];
   string password = 4 [(buf.validate.field).string.min_len = 6];
   string password_confirm = 5;
   UserRole role = 6;
   google.protobuf.Timestamp created_at = 7;
   google.protobuf.Timestamp updated_at = 8;
+  string nickname = 9;
 
   option (buf.validate.message).cel = {
     id: "user_created_at_must_be_bigger_updated_at",
@@ -85,11 +69,13 @@ enum UserRole {
 }
 
 message CreateRequest {
-  string name = 1;
+  // This field is deprecated. Use nickname instead
+  string name = 1 [deprecated=true];
   string email = 2;
   string password = 3;
   string password_confirm = 4;
   UserRole role = 5;
+  string nickname = 7;
 }
 
 message CreateResponse {
@@ -102,18 +88,22 @@ message GetRequest {
 
 message GetResponse {
   int64 id = 1;
-  string name = 2;
+  // This field is deprecated. Use nickname instead.
+  string name = 2 [deprecated=true];
   string email = 3;
   UserRole role = 4;
   google.protobuf.Timestamp created_at = 5;
   google.protobuf.Timestamp updated_at = 6;
+  string nickname = 7;
 }
 
 message UpdateRequest {
   int64 id = 1;
-  optional string name = 2;
+  // This field is deprecated. Use nickname instead
+  optional string name = 2 [deprecated=true];
   optional string email = 3;
   optional UserRole role = 4;
+  optional string nickname = 5;
 }
 
 message DeleteRequest {

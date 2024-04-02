@@ -6,16 +6,22 @@ import (
 	"github.com/defany/db/pkg/postgres"
 )
 
-type service struct {
-	tx   postgres.TxManager
-	repo repository.UserRepository
-	log  repository.LogRepository
+type PasswordHasher interface {
+	GenerateFromPassword(password []byte) ([]byte, error)
 }
 
-func NewService(tx postgres.TxManager, repo repository.UserRepository, log repository.LogRepository) defserv.UserService {
+type service struct {
+	tx         postgres.TxManager
+	repo       repository.UserRepository
+	log        repository.LogRepository
+	passHasher PasswordHasher
+}
+
+func NewService(tx postgres.TxManager, repo repository.UserRepository, log repository.LogRepository, passHasher PasswordHasher) defserv.UserService {
 	return &service{
-		tx:   tx,
-		repo: repo,
-		log:  log,
+		tx:         tx,
+		repo:       repo,
+		log:        log,
+		passHasher: passHasher,
 	}
 }

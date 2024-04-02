@@ -10,7 +10,14 @@ import (
 func (s *service) Create(ctx context.Context, user model.UserCreate) (uint64, error) {
 	var userID uint64
 
-	err := s.tx.ReadCommitted(ctx, func(ctx context.Context) error {
+	password, err := s.passHasher.GenerateFromPassword([]byte(user.Password))
+	if err != nil {
+		return 0, err
+	}
+
+	user.Password = string(password)
+
+	err = s.tx.ReadCommitted(ctx, func(ctx context.Context) error {
 		id, err := s.repo.Create(ctx, user)
 		if err != nil {
 			return err

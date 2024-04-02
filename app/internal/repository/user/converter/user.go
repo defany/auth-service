@@ -7,13 +7,12 @@ import (
 
 func UserToModel(user storemodel.User) model.User {
 	return model.User{
-		ID:              user.ID,
-		Name:            user.Name,
-		Email:           user.Email,
-		Password:        user.Password,
-		PasswordConfirm: user.PasswordConfirm,
-		Role:            user.Role,
-		CreatedAt:       user.CreatedAt,
-		UpdatedAt:       user.UpdatedAt.V,
+		ID:        user.ID,
+		Nickname:  user.Nickname,
+		Email:     user.Email,
+		Password:  user.Password,
+		Role:      user.Role,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt.V,
 	}
 }

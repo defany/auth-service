@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "Auth API",
+    "title": "Auth Service API",
     "version": "1.0.0",
     "contact": {
       "name": "DeFaNy",
@@ -9,6 +9,12 @@
     }
   },
   "tags": [
+    {
+      "name": "AuthService"
+    },
+    {
+      "name": "AccessService"
+    },
     {
       "name": "UserService"
     }
@@ -25,6 +31,132 @@
     "application/json"
   ],
   "paths": {
+    "/access/v1/{endpoint}": {
+      "get": {
+        "operationId": "AccessService_Check",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "endpoint",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "AccessService"
+        ]
+      }
+    },
+    "/auth/v1": {
+      "post": {
+        "summary": "Login",
+        "operationId": "AuthService_Login",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1LoginResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1LoginRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AuthService"
+        ]
+      }
+    },
+    "/auth/v1/token": {
+      "get": {
+        "summary": "Get new refresh token by old",
+        "operationId": "AuthService_GetRefreshToken",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetRefreshTokenResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "refreshToken",
+            "description": "Old refresh token",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "AuthService"
+        ]
+      }
+    },
+    "/auth/v1/token/access": {
+      "get": {
+        "operationId": "AuthService_GetAccessToken",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetAccessTokenResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "refreshToken",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "AuthService"
+        ]
+      }
+    },
     "/users/v1": {
       "get": {
         "summary": "Get user by id",
@@ -185,7 +317,8 @@
       "type": "object",
       "properties": {
         "name": {
-          "type": "string"
+          "type": "string",
+          "title": "This field is deprecated. Use nickname instead"
         },
         "email": {
           "type": "string"
@@ -198,6 +331,9 @@
         },
         "role": {
           "$ref": "#/definitions/v1UserRole"
+        },
+        "nickname": {
+          "type": "string"
         }
       }
     },
@@ -210,6 +346,23 @@
         }
       }
     },
+    "v1GetAccessTokenResponse": {
+      "type": "object",
+      "properties": {
+        "accessToken": {
+          "type": "string"
+        }
+      }
+    },
+    "v1GetRefreshTokenResponse": {
+      "type": "object",
+      "properties": {
+        "refreshToken": {
+          "type": "string",
+          "title": "New refresh token"
+        }
+      }
+    },
     "v1GetResponse": {
       "type": "object",
       "properties": {
@@ -218,7 +371,8 @@
           "format": "int64"
         },
         "name": {
-          "type": "string"
+          "type": "string",
+          "description": "This field is deprecated. Use nickname instead."
         },
         "email": {
           "type": "string"
@@ -233,6 +387,28 @@
         "updatedAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "nickname": {
+          "type": "string"
+        }
+      }
+    },
+    "v1LoginRequest": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "v1LoginResponse": {
+      "type": "object",
+      "properties": {
+        "refreshToken": {
+          "type": "string"
         }
       }
     },
@@ -244,13 +420,17 @@
           "format": "int64"
         },
         "name": {
-          "type": "string"
+          "type": "string",
+          "title": "This field is deprecated. Use nickname instead"
         },
         "email": {
           "type": "string"
         },
         "role": {
           "$ref": "#/definitions/v1UserRole"
+        },
+        "nickname": {
+          "type": "string"
         }
       }
     },

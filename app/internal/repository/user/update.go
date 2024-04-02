@@ -12,8 +12,8 @@ func (r *repository) Update(ctx context.Context, user model.UserUpdate) error {
 		idColumn: user.ID,
 	})
 
-	if user.Name != nil {
-		q = q.Set(nameColumn, user.Name)
+	if user.Nickname != nil {
+		q = q.Set(nicknameColumn, user.Nickname)
 	}
 
 	if user.Email != nil {
