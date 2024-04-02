@@ -317,7 +317,8 @@
       "type": "object",
       "properties": {
         "name": {
-          "type": "string"
+          "type": "string",
+          "title": "This field is deprecated. Use nickname instead"
         },
         "email": {
           "type": "string"
@@ -330,6 +331,9 @@
         },
         "role": {
           "$ref": "#/definitions/v1UserRole"
+        },
+        "nickname": {
+          "type": "string"
         }
       }
     },
@@ -367,7 +371,8 @@
           "format": "int64"
         },
         "name": {
-          "type": "string"
+          "type": "string",
+          "description": "This field is deprecated. Use nickname instead."
         },
         "email": {
           "type": "string"
@@ -382,6 +387,9 @@
         "updatedAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "nickname": {
+          "type": "string"
         }
       }
     },
@@ -412,13 +420,17 @@
           "format": "int64"
         },
         "name": {
-          "type": "string"
+          "type": "string",
+          "title": "This field is deprecated. Use nickname instead"
         },
         "email": {
           "type": "string"
         },
         "role": {
           "$ref": "#/definitions/v1UserRole"
+        },
+        "nickname": {
+          "type": "string"
         }
       }
     },

@@ -10,6 +10,6 @@ func NewPasswordMock(passToReturn string) *PasswordMock {
 	}
 }
 
-func (p *PasswordMock) GenerateFromPassword(password []byte, cost int) ([]byte, error) {
+func (p *PasswordMock) GenerateFromPassword(password []byte) ([]byte, error) {
 	return []byte(p.passToReturn), nil
 }

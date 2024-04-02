@@ -8,6 +8,6 @@ func NewPassword() *Password {
 	return &Password{}
 }
 
-func (p *Password) GenerateFromPassword(password []byte, cost int) ([]byte, error) {
-	return bcrypt.GenerateFromPassword(password, cost)
+func (p *Password) GenerateFromPassword(password []byte) ([]byte, error) {
+	return bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
 }

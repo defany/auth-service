@@ -5,13 +5,12 @@ import (
 
 	"github.com/defany/auth-service/app/internal/model"
 	"github.com/defany/slogger/pkg/logger/sl"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func (s *service) Create(ctx context.Context, user model.UserCreate) (uint64, error) {
 	var userID uint64
 
-	password, err := s.passHasher.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	password, err := s.passHasher.GenerateFromPassword([]byte(user.Password))
 	if err != nil {
 		return 0, err
 	}

@@ -7,7 +7,7 @@ import (
 )
 
 type PasswordHasher interface {
-	GenerateFromPassword(password []byte, cost int) ([]byte, error)
+	GenerateFromPassword(password []byte) ([]byte, error)
 }
 
 type service struct {
