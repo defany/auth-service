@@ -116,7 +116,7 @@ func (a *App) setupGRPCServer(ctx context.Context) {
 
 	a.grpcServer = grpc.NewServer(
 		grpc.Creds(insecure.NewCredentials()),
-		grpc.UnaryInterceptor(itcp.Interceptor),
+		grpc.UnaryInterceptor(itcp.MetricsInterceptor),
 	)
 
 	reflection.Register(a.grpcServer)

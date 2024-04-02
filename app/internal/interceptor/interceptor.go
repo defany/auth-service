@@ -14,7 +14,7 @@ func NewInterceptor() *Interceptor {
 	return &Interceptor{}
 }
 
-func (i *Interceptor) Interceptor(ctx context.Context, req any, server *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
+func (i *Interceptor) MetricsInterceptor(ctx context.Context, req any, server *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 	startAt := time.Now()
 
 	metrics.IncRequestCounter()
