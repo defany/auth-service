@@ -17,11 +17,10 @@ type User struct {
 }
 
 type UserCreate struct {
-	Name            string
-	Email           string
-	Password        string
-	PasswordConfirm string
-	Role            string
+	Nickname string `validate:"required|min_len:6"`
+	Email    string `validate:"required|email"`
+	Password string `validate:"required|min_len:8"`
+	Role     string `validate:"required"`
 }
 
 type UserUpdate struct {

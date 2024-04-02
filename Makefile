@@ -64,5 +64,6 @@ install:
 	go mod download
 
 	go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest \
-	github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@latest \
-	github.com/rakyll/statik
+	github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@latest
+
+	go install github.com/rakyll/statik@latest

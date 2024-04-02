@@ -7,7 +7,7 @@ require (
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/brianvoe/gofakeit v3.18.0+incompatible
 	github.com/defany/db v1.0.1
-	github.com/defany/platcom v1.0.1
+	github.com/defany/platcom v1.0.3
 	github.com/defany/slogger v0.0.0-20240312111244-c9218f55e9fb
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.19.1

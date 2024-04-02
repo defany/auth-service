@@ -70,7 +70,8 @@ message CreateRequest {
   string name = 1;
   string email = 2;
   string password = 3;
-  string password_confirm = 4;
+  // This field is unusable.
+  string password_confirm = 4 [deprecated=true];
   UserRole role = 5;
 }
 

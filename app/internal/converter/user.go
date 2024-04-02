@@ -10,11 +10,10 @@ import (
 
 func ToUserCreate(input *userv1.CreateRequest) model.UserCreate {
 	return model.UserCreate{
-		Name:            input.GetName(),
-		Email:           input.GetEmail(),
-		Password:        input.GetPassword(),
-		PasswordConfirm: input.GetPasswordConfirm(),
-		Role:            input.GetRole().String(),
+		Nickname: cond.Ternary(input.GetNickname() != "", input.GetNickname(), input.GetName()),
+		Email:    input.GetEmail(),
+		Password: input.GetPassword(),
+		Role:     input.GetRole().String(),
 	}
 }
 

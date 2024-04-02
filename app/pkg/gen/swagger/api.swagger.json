@@ -326,7 +326,8 @@
           "type": "string"
         },
         "passwordConfirm": {
-          "type": "string"
+          "type": "string",
+          "description": "This field is unusable."
         },
         "role": {
           "$ref": "#/definitions/v1UserRole"
