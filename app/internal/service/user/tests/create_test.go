@@ -42,7 +42,7 @@ func TestService_SuccessUserCreate(t *testing.T) {
 		role     = userv1.UserRole_name[int32(userv1.UserRole_ADMIN)]
 
 		userCreateInput = model.UserCreate{
-			Name:     name,
+			Nickname: name,
 			Email:    email,
 			Password: password,
 			Role:     role,
@@ -202,7 +202,7 @@ func TestService_FailUserCreate(t *testing.T) {
 		role     = userv1.UserRole_name[int32(userv1.UserRole_ADMIN)]
 
 		userCreateInput = model.UserCreate{
-			Name:     name,
+			Nickname: name,
 			Email:    email,
 			Password: password,
 			Role:     role,
@@ -299,7 +299,7 @@ func TestService_FailUserCreateLog(t *testing.T) {
 		role     = userv1.UserRole_name[int32(userv1.UserRole_ADMIN)]
 
 		userCreateInput = model.UserCreate{
-			Name:     name,
+			Nickname: name,
 			Email:    email,
 			Password: password,
 			Role:     role,

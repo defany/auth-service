@@ -41,10 +41,10 @@ func TestService_SuccessUserUpdate(t *testing.T) {
 		role  = userv1.UserRole_name[int32(userv1.UserRole_ADMIN)]
 
 		userUpdateInput = model.UserUpdate{
-			ID:    userID,
-			Name:  &name,
-			Email: &email,
-			Role:  &role,
+			ID:       userID,
+			Nickname: &name,
+			Email:    &email,
+			Role:     &role,
 		}
 
 		logCreateInput = model.Log{
@@ -194,10 +194,10 @@ func TestService_FailUserUpdate(t *testing.T) {
 		role  = userv1.UserRole_name[int32(userv1.UserRole_ADMIN)]
 
 		userUpdateInput = model.UserUpdate{
-			ID:    userID,
-			Name:  &name,
-			Email: &email,
-			Role:  &role,
+			ID:       userID,
+			Nickname: &name,
+			Email:    &email,
+			Role:     &role,
 		}
 
 		logCreateInput = model.Log{
@@ -288,10 +288,10 @@ func TestService_FailUserUpdateLog(t *testing.T) {
 		role  = userv1.UserRole_name[int32(userv1.UserRole_ADMIN)]
 
 		userUpdateInput = model.UserUpdate{
-			ID:    userID,
-			Name:  &name,
-			Email: &email,
-			Role:  &role,
+			ID:       userID,
+			Nickname: &name,
+			Email:    &email,
+			Role:     &role,
 		}
 
 		logCreateInput = model.Log{

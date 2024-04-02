@@ -11,7 +11,7 @@ import (
 func (r *repository) Create(ctx context.Context, user model.UserCreate) (uint64, error) {
 	q := r.qb.Insert(table).
 		Columns(nicknameColumn, emailColumn, passwordColumn, roleColumn).
-		Values(user.Name, user.Email, user.Password, user.Role).
+		Values(user.Nickname, user.Email, user.Password, user.Role).
 		Suffix(fmt.Sprintf("returning %s", idColumn))
 
 	sql, args, err := q.ToSql()

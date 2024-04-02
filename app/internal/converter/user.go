@@ -21,6 +21,7 @@ func ToGetResponse(input model.User) *userv1.GetResponse {
 	return &userv1.GetResponse{
 		Id:        int64(input.ID),
 		Name:      input.Nickname,
+		Nickname:  input.Nickname,
 		Email:     input.Email,
 		Role:      ToUserProtoRole(input.Role),
 		CreatedAt: timestamppb.New(input.CreatedAt),
@@ -29,15 +30,15 @@ func ToGetResponse(input model.User) *userv1.GetResponse {
 }
 
 func ToUserUpdate(input *userv1.UpdateRequest) model.UserUpdate {
-	name := input.GetName()
+	name := cond.Ternary(input.GetNickname() != "", input.GetNickname(), input.GetName())
 	email := input.GetEmail()
 	role := input.GetRole().String()
 
 	return model.UserUpdate{
-		ID:    uint64(input.GetId()),
-		Name:  &name,
-		Email: &email,
-		Role:  &role,
+		ID:       uint64(input.GetId()),
+		Nickname: &name,
+		Email:    &email,
+		Role:     &role,
 	}
 }
 

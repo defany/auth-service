@@ -24,10 +24,10 @@ type UserCreate struct {
 }
 
 type UserUpdate struct {
-	ID    uint64
-	Name  *string
-	Email *string
-	Role  *string
+	ID       uint64
+	Nickname *string
+	Email    *string
+	Role     *string
 }
 
 type UserLoginInput struct {
